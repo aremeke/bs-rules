@@ -121,9 +121,9 @@
   <dmn:itemDefinition id="_7D0AF0E3-8AD2-4CED-A1A2-726FABCB59E7" name="eOAs" isCollection="true">
     <dmn:typeRef>string</dmn:typeRef>
   </dmn:itemDefinition>
-  <dmn:decision id="_583DD903-9259-4ED8-AF6D-4A2B24E899D1" name="CalcuateEvalScore">
+  <dmn:decision id="_583DD903-9259-4ED8-AF6D-4A2B24E899D1" name="CalculateEvalScore">
     <dmn:extensionElements/>
-    <dmn:variable id="_F7CE8EDA-E4DE-4375-90CE-2AE7157E687A" name="CalcuateEvalScore" typeRef="number"/>
+    <dmn:variable id="_F7CE8EDA-E4DE-4375-90CE-2AE7157E687A" name="CalculateEvalScore" typeRef="number"/>
     <dmn:informationRequirement id="_6A053EFB-F239-402C-ABD2-2A6051B5C467">
       <dmn:requiredDecision href="#_463754E3-6FF7-4CFF-BFE4-80F0F6724DFD"/>
     </dmn:informationRequirement>
@@ -834,9 +834,6 @@ then AddLeadingZeros(decimals, string join(["0",value])) else value
     <dmn:informationRequirement id="_3FA00F11-C504-4C7B-B7C1-F5D34D086C6D">
       <dmn:requiredInput href="#_1C191D81-E58F-4B93-924B-CD7FAB1B2DB1"/>
     </dmn:informationRequirement>
-    <dmn:informationRequirement id="_E3F74683-F1D1-4123-9106-EEFBFE83409D">
-      <dmn:requiredInput href="#_95379092-93E2-43C2-A8EB-AB644004699F"/>
-    </dmn:informationRequirement>
     <dmn:informationRequirement id="_0CA69E87-BE76-4563-B866-C5F68C680CFF">
       <dmn:requiredInput href="#_2E757F8B-F6E4-4E52-88A7-37F22021A252"/>
     </dmn:informationRequirement>
@@ -963,31 +960,6 @@ return PrepareAsset(asset,"ERC20 APPROVAL")</dmn:text>
             </dmn:literalExpression>
           </dmn:contextEntry>
           <dmn:contextEntry>
-            <dmn:variable id="_ACB0F40F-2EB4-49AE-84CA-244D6E842E76" name="withInput" typeRef="boolean"/>
-            <dmn:literalExpression id="_87295ED6-C32B-4855-A1DE-8814F2CBDD8A">
-              <dmn:text>if transaction.input = "0x" then false else true</dmn:text>
-            </dmn:literalExpression>
-          </dmn:contextEntry>
-          <dmn:contextEntry>
-            <dmn:variable id="_48D5E49A-1C8A-4BD1-ACAB-006A6DD865EE" name="signatureHash" typeRef="string"/>
-            <dmn:literalExpression id="_0B7F40C4-CD50-4C6F-B5FB-6805CDB80401">
-              <dmn:text>if withInput then substring(transaction.input,1,10) else "0x"</dmn:text>
-            </dmn:literalExpression>
-          </dmn:contextEntry>
-          <dmn:contextEntry>
-            <dmn:variable id="_7A161FEC-BA03-4024-9964-161954560009" name="withInputDecoded" typeRef="boolean"/>
-            <dmn:literalExpression id="_C66DDA00-ED58-4380-A4F2-A9260B5CD6CE">
-              <dmn:text>if decodedInput != null and decodedInput.signature != null then true else false</dmn:text>
-            </dmn:literalExpression>
-          </dmn:contextEntry>
-          <dmn:contextEntry>
-            <dmn:variable id="_4AFF2997-9F72-4D45-A884-BE475EFE545C" name="inputSignature" typeRef="string"/>
-            <dmn:literalExpression id="_CAB144D1-D18B-48A4-AD6C-8FAABFFBC052">
-              <dmn:text>// not in use
-if withInputDecoded then decodedInput.signature else null</dmn:text>
-            </dmn:literalExpression>
-          </dmn:contextEntry>
-          <dmn:contextEntry>
             <dmn:variable id="_9CAFF59A-DF6B-4DC7-85E0-5AB9C043A41C" name="notSupported" typeRef="boolean"/>
             <dmn:literalExpression id="_1B7E7EE9-6CB2-4809-920C-4D9049235E0F">
               <dmn:text>//  NFT and blob transactions or very large tranactions
@@ -1040,12 +1012,6 @@ traces)))</dmn:text>
       </dmn:contextEntry>
     </dmn:context>
   </dmn:decision>
-  <dmn:inputData id="_95379092-93E2-43C2-A8EB-AB644004699F" name="decodedInput">
-    <dmn:description>Source:  transaction.input  + ABIs +  https://docs.ethers.org/. 
-Please visit blockschau.io/docs for details.</dmn:description>
-    <dmn:extensionElements/>
-    <dmn:variable id="_015E5B0B-1C4C-4A32-BB97-F5C62C150B61" name="decodedInput" typeRef="decodedInput"/>
-  </dmn:inputData>
   <dmn:inputData id="_B8E2B699-1DA3-4243-969D-7F4639A7B6ED" name="contracts">
     <dmn:description>Source: Offchain. 
 Please visit blockschau.io/docs for details.</dmn:description>
@@ -1068,13 +1034,13 @@ Please visit blockschau.io/docs for details.</dmn:description>
         <dmn:contextEntry>
           <dmn:variable id="_8B0A8BCE-2742-4214-BE04-FD28416FFBB6" name="countAssetsIn" typeRef="number"/>
           <dmn:literalExpression id="_8D665BAC-A97F-4BF4-9E32-34BE5A68EBAB">
-            <dmn:text>count(distinct values(receiverAssets.assets[item.flow ="in" and item.isEthDust = false].contract))</dmn:text>
+            <dmn:text>FindAndCountInflows(receiverAssets.grouped[1][not(list contains(item.includesEthDust,true) and count(item.includesEthDust) = 1)])</dmn:text>
           </dmn:literalExpression>
         </dmn:contextEntry>
         <dmn:contextEntry>
           <dmn:variable id="_1EAB35C0-CDCD-42FE-AC00-26FC8256701C" name="countAssetsOut" typeRef="number"/>
           <dmn:literalExpression id="_3C40C474-B498-4A28-836F-4FA6D7416A50">
-            <dmn:text>count(distinct values(senderAssets.assets[item.flow="out" and item.isEthDust = false].contract))</dmn:text>
+            <dmn:text>FindAndCountOutflows(senderAssets.grouped[1][not(list contains(item.includesEthDust,true) and count(item.includesEthDust) = 1)])</dmn:text>
           </dmn:literalExpression>
         </dmn:contextEntry>
         <dmn:contextEntry>
@@ -1086,47 +1052,30 @@ Please visit blockschau.io/docs for details.</dmn:description>
         <dmn:contextEntry>
           <dmn:variable id="_927A88D5-30CA-453A-8DB4-D17B45FB2C23" name="isArbitrage" typeRef="boolean"/>
           <dmn:literalExpression id="_8A21B199-5A7C-4FB8-A2A7-F3992F62F6B6">
-            <dmn:text>// same Asset, but value of incoming asset must be greater than value of outgoing Asset.
-if sum(for assetIn in receiverAssets.assets[flow="in"], assetOut in senderAssets.assets[flow="out"] return
-if (assetIn.symbol = assetOut.symbol) and (assetIn.contract = assetOut.contract) and number(assetIn.valueAndPrefix,null,".") &gt; (number(assetOut.valueAndPrefix, null, ".") *(-1))
-then 1 else 0
-) &gt; 0 then true
-else if 
-  every asset in senderAssets.grouped[1] satisfies (starts with(asset.valueAndPrefix,"0E") or number(asset.valueAndPrefix,null,".") = 0) and 
-    some asset in receiverAssets.grouped[1] satisfies number(asset.valueAndPrefix,null,".") &gt; 0 
-then true else false</dmn:text>
-          </dmn:literalExpression>
-        </dmn:contextEntry>
-        <dmn:contextEntry>
-          <dmn:variable id="_E30CA145-C539-4985-A601-6F6831904D1F" name="countSame" typeRef="number"/>
-          <dmn:literalExpression id="_AFF3FD03-99BE-4C78-8A8C-1C0B1C29F749">
-            <dmn:text>// same Asset with same value. This implies Value Transfers, rather than swaps.
-sum(for assetIn in receiverAssets.assets[flow="in"], assetOut in senderAssets.assets[flow="out"] return
-if assetIn.symbol = assetOut.symbol and assetIn.contract = assetOut.contract and ("-"+assetIn.value) = assetOut.value
-then 1 else 0
-)</dmn:text>
+            <dmn:text>if countAssetsIn &gt; 0 and countAssetsOut = 0 then true else false</dmn:text>
           </dmn:literalExpression>
         </dmn:contextEntry>
         <dmn:contextEntry>
           <dmn:variable id="_B47910A3-0C53-4B1D-BACB-4BD58CDC5D02" name="isWethMint" typeRef="boolean"/>
           <dmn:literalExpression id="_08BAA329-3A3A-47EF-B459-F15771DBEFFA">
-            <dmn:text>if count(receiverAssets.assets[flow="out"]) = 1 and count(senderAssets.assets[flow="in"]) = 1 then if senderAssets.assets[flow="in"][1].category = "WETH MINT" and receiverAssets.assets[flow="out"][1].symbol = "ETH" then true else false else false</dmn:text>
+            <dmn:text>
+list contains(receiverAssets.assets.category,"WETH MINT")</dmn:text>
           </dmn:literalExpression>
         </dmn:contextEntry>
         <dmn:contextEntry>
           <dmn:variable id="_C1572001-768D-480F-9DED-5701DB034D20" name="isWethBurn" typeRef="boolean"/>
           <dmn:literalExpression id="_A87BCD92-BBA4-4FBF-B440-409A2BE3D3DC">
-            <dmn:text>if  count(receiverAssets.assets[flow="out"]) = 1 and count(senderAssets.assets[flow="in"]) = 1 then if senderAssets.assets[flow="out"][1].category = "WETH BURN" and receiverAssets.assets[flow="in"][1].symbol = "ETH" then true else false else false</dmn:text>
+            <dmn:text>list contains(senderAssets.assets.category,"WETH BURN")</dmn:text>
           </dmn:literalExpression>
         </dmn:contextEntry>
         <dmn:contextEntry>
           <dmn:variable id="_84DD187F-B2BF-4E96-920D-FB15D6A73F0D" name="multipleWallets" typeRef="boolean"/>
           <dmn:literalExpression id="_112F6423-4F38-456D-A5FA-BB658FA3AC18">
-            <dmn:text>//some assetIn in receiverAssets.assets[flow="in"] 
-//satisfies if count(senderAssets.assets[flow="out" and item.address != assetIn.address]) &gt; 0 then true else false
-some assetIn in receiverAssets.assets[flow="in"] 
-satisfies if count(senderAssets.assets[flow="out" and item.address != assetIn.address1 and item.address != assetIn.address]) &gt; 0 then true else false
-</dmn:text>
+            <dmn:text>if receiverAssets.receiver != senderAssets.sender
+and not(isArbitrage)
+and countAssetsIn &gt; 0 
+and FindAndCountPartialOutflows(receiverAssets.grouped[1][not(list contains(item.includesEthDust,true) and count(item.includesEthDust) = 1)]) = 0   
+then true else false</dmn:text>
           </dmn:literalExpression>
         </dmn:contextEntry>
         <dmn:contextEntry>
@@ -1140,11 +1089,6 @@ satisfies if count(senderAssets.assets[flow="out" and item.address != assetIn.ad
             <dmn:input id="_46508D68-B740-4174-A03E-ED79D4DB2BD9">
               <dmn:inputExpression id="_85456E04-B4C7-41F5-B8DC-ADF1CBD0079C" typeRef="boolean">
                 <dmn:text>isArbitrage</dmn:text>
-              </dmn:inputExpression>
-            </dmn:input>
-            <dmn:input id="_4A7A0E3E-C91E-477B-BEA5-BAAB8338B3D9">
-              <dmn:inputExpression id="_033C45D7-B8DC-461C-BDB6-1348434CC306" typeRef="number">
-                <dmn:text>countSame</dmn:text>
               </dmn:inputExpression>
             </dmn:input>
             <dmn:input id="_4988312F-F894-48C4-A04F-859A4F18A233">
@@ -1175,9 +1119,6 @@ satisfies if count(senderAssets.assets[flow="out" and item.address != assetIn.ad
               <dmn:inputEntry id="_097976EC-1332-46B5-8579-063E17F6FA7F">
                 <dmn:text>false</dmn:text>
               </dmn:inputEntry>
-              <dmn:inputEntry id="_9E70D4CD-E86C-49BF-8CB3-A719C97B78B8">
-                <dmn:text>0</dmn:text>
-              </dmn:inputEntry>
               <dmn:inputEntry id="_C4AA14BE-CE3D-4EB1-AE8D-6C412F01AD4A">
                 <dmn:text>false</dmn:text>
               </dmn:inputEntry>
@@ -1191,7 +1132,7 @@ satisfies if count(senderAssets.assets[flow="out" and item.address != assetIn.ad
                 <dmn:text>"Single Swap"</dmn:text>
               </dmn:outputEntry>
               <dmn:annotationEntry>
-                <dmn:text>One Asset is swapped for another asset.</dmn:text>
+                <dmn:text/>
               </dmn:annotationEntry>
             </dmn:rule>
             <dmn:rule id="_8FF57510-759F-4996-B63D-76C1EDFD3937">
@@ -1200,9 +1141,6 @@ satisfies if count(senderAssets.assets[flow="out" and item.address != assetIn.ad
               </dmn:inputEntry>
               <dmn:inputEntry id="_E9FB7AB2-6588-48ED-B383-BFE07E37D470">
                 <dmn:text>false</dmn:text>
-              </dmn:inputEntry>
-              <dmn:inputEntry id="_D52AB978-0936-40A6-A9C7-E734C1EFF116">
-                <dmn:text>0</dmn:text>
               </dmn:inputEntry>
               <dmn:inputEntry id="_91C88F87-9486-4CB0-B393-D7212645C4F6">
                 <dmn:text>false</dmn:text>
@@ -1214,21 +1152,18 @@ satisfies if count(senderAssets.assets[flow="out" and item.address != assetIn.ad
                 <dmn:text>false</dmn:text>
               </dmn:inputEntry>
               <dmn:outputEntry id="_B9299184-219B-4580-8C2A-79B1C8DB338D">
-                <dmn:text>"Multiple Swap"</dmn:text>
+                <dmn:text>"Multi Swap"</dmn:text>
               </dmn:outputEntry>
               <dmn:annotationEntry>
-                <dmn:text>More than one incoming and/or outgoing assets. </dmn:text>
+                <dmn:text/>
               </dmn:annotationEntry>
             </dmn:rule>
             <dmn:rule id="_335E57B5-E2B7-441E-8828-6059A29833E7">
               <dmn:inputEntry id="_47D4E518-CBAC-40A7-BA70-05E1B3829130">
-                <dmn:text>1</dmn:text>
+                <dmn:text>-</dmn:text>
               </dmn:inputEntry>
               <dmn:inputEntry id="_0D7D11CC-A8A0-45E3-8D4F-825EA8497119">
                 <dmn:text>false</dmn:text>
-              </dmn:inputEntry>
-              <dmn:inputEntry id="_CB3746B1-A985-458A-90B0-630B2DF350E1">
-                <dmn:text>0</dmn:text>
               </dmn:inputEntry>
               <dmn:inputEntry id="_65A4A03A-E028-4286-A780-25F7BDA1AB2F">
                 <dmn:text>true</dmn:text>
@@ -1237,7 +1172,7 @@ satisfies if count(senderAssets.assets[flow="out" and item.address != assetIn.ad
                 <dmn:text>-</dmn:text>
               </dmn:inputEntry>
               <dmn:inputEntry id="_9AD56146-B22E-44B3-A82E-34EE66FC052C">
-                <dmn:text>false</dmn:text>
+                <dmn:text>-</dmn:text>
               </dmn:inputEntry>
               <dmn:outputEntry id="_549C75B6-AC3C-49B2-B283-578488A481F7">
                 <dmn:text>"WETH Mint"</dmn:text>
@@ -1250,16 +1185,13 @@ balance of ETH in the ratio 1:1 as a result of the deposit.</dmn:text>
             </dmn:rule>
             <dmn:rule id="_DA2F32E0-9316-4D08-A1FC-2920611E98E8">
               <dmn:inputEntry id="_16FBDC50-BC93-4D25-BCF4-EC89D0B8033F">
-                <dmn:text>1</dmn:text>
+                <dmn:text>-</dmn:text>
               </dmn:inputEntry>
               <dmn:inputEntry id="_EF72EAD5-8463-49E2-8190-823EACAF3970">
                 <dmn:text>false</dmn:text>
               </dmn:inputEntry>
-              <dmn:inputEntry id="_55DE4C20-1356-4A41-A00E-0877935133AE">
-                <dmn:text>0</dmn:text>
-              </dmn:inputEntry>
               <dmn:inputEntry id="_DB9FB809-16A9-40E9-8E73-FFA7CA2DFE17">
-                <dmn:text>false</dmn:text>
+                <dmn:text>-</dmn:text>
               </dmn:inputEntry>
               <dmn:inputEntry id="_E26FECEC-845C-4772-80E3-1337FD98918F">
                 <dmn:text>-</dmn:text>
@@ -1280,9 +1212,6 @@ balance of ETH in the ratio 1:1 as a result of the deposit.</dmn:text>
               </dmn:inputEntry>
               <dmn:inputEntry id="_EE29332D-78A0-4C0D-A626-10ED641E9996">
                 <dmn:text>true</dmn:text>
-              </dmn:inputEntry>
-              <dmn:inputEntry id="_F2A8DAB8-5062-4460-AB7E-2D450A44F5CA">
-                <dmn:text>0</dmn:text>
               </dmn:inputEntry>
               <dmn:inputEntry id="_97749EE7-152F-4CCA-91CE-3DFCFDEF5919">
                 <dmn:text>false</dmn:text>
@@ -1307,9 +1236,6 @@ balance of ETH in the ratio 1:1 as a result of the deposit.</dmn:text>
               <dmn:inputEntry id="_65A119B1-862E-4C65-B2EE-6954CA54DB8F">
                 <dmn:text>false</dmn:text>
               </dmn:inputEntry>
-              <dmn:inputEntry id="_2DC5BDFB-C590-4865-BD1F-3414F855BA51">
-                <dmn:text>0</dmn:text>
-              </dmn:inputEntry>
               <dmn:inputEntry id="_86EDF013-F0C6-4B67-A82A-2C912852EC2B">
                 <dmn:text>-</dmn:text>
               </dmn:inputEntry>
@@ -1323,7 +1249,7 @@ balance of ETH in the ratio 1:1 as a result of the deposit.</dmn:text>
                 <dmn:text>"Transfer Swap"</dmn:text>
               </dmn:outputEntry>
               <dmn:annotationEntry>
-                <dmn:text>Wallet W1 swapped Asset A1 for Asset A2 which is received by Wallet W2</dmn:text>
+                <dmn:text/>
               </dmn:annotationEntry>
             </dmn:rule>
           </dmn:decisionTable>
@@ -1335,38 +1261,34 @@ balance of ETH in the ratio 1:1 as a result of the deposit.</dmn:text>
         </dmn:contextEntry>
       </dmn:context>
     </dmn:encapsulatedLogic>
+    <dmn:knowledgeRequirement id="_6B3D0BE3-2E17-450E-9947-9082B6E34822">
+      <dmn:requiredKnowledge href="#_AFFFE7CA-2BFC-4712-9FAB-1209450E864F"/>
+    </dmn:knowledgeRequirement>
+    <dmn:knowledgeRequirement id="_8C5E7392-706C-42F0-AD81-39B0E9FB1BF2">
+      <dmn:requiredKnowledge href="#_4F042B7A-CAC6-4A03-B10B-06B69FF76E1F"/>
+    </dmn:knowledgeRequirement>
+    <dmn:knowledgeRequirement id="_48ED91CA-17AB-4C2D-BF70-893FEEACA770">
+      <dmn:requiredKnowledge href="#_78391859-CE88-4340-8A3C-8EC586B3C8A9"/>
+    </dmn:knowledgeRequirement>
   </dmn:businessKnowledgeModel>
   <dmn:businessKnowledgeModel id="_F21992FE-331B-48D1-A3DF-4E1D0CE1D64D" name="SpecifyTransferType">
     <dmn:extensionElements/>
-    <dmn:variable id="_F358DA52-4470-464F-9523-6F3AE96FB1E6" name="SpecifyTransferType" typeRef="string"/>
+    <dmn:variable id="_F358DA52-4470-464F-9523-6F3AE96FB1E6" name="SpecifyTransferType" typeRef="Any"/>
     <dmn:encapsulatedLogic id="_56FC63B4-7BDC-4673-9070-76F6D6BD40C8" kind="FEEL">
       <dmn:formalParameter id="_BA76983C-46E8-4737-BE05-95BD01137751" name="receiverAssets" typeRef="Any"/>
       <dmn:formalParameter id="_A13A7062-EB48-4B1C-8213-5D7A65BE4F76" name="senderAssets" typeRef="Any"/>
       <dmn:context id="_F6D6F715-2A74-4AD3-A983-B9FA87D63E54">
         <dmn:contextEntry>
-          <dmn:variable id="_5E17C06E-652C-4714-AD13-393FF7DEA9F5" name="transfersIn" typeRef="Any"/>
-          <dmn:literalExpression id="_E577BC5B-FE6F-4C7A-8C9F-7391C5BB3D76">
-            <dmn:text>flatten(for assetIn in receiverAssets.assets[item.flow="in"] return (
-if count(senderAssets.assets[item.flow="out" and item.valueAndPrefix = ("-"+assetIn.valueAndPrefix) 
-and item.symbol = assetIn.symbol and item.contract = assetIn.contract]) &gt; 0 
-then assetIn else []
-))</dmn:text>
+          <dmn:variable id="_8E8E1D92-9C9B-4C9D-B391-8C81F3449762" name="notSameAddress" typeRef="boolean"/>
+          <dmn:literalExpression id="_E0B7FCC2-7181-411B-8A51-001B5979C30D">
+            <dmn:text>if receiverAssets.receiver != senderAssets.sender then true else false 
+</dmn:text>
           </dmn:literalExpression>
         </dmn:contextEntry>
         <dmn:contextEntry>
           <dmn:variable id="_67E86D29-2D1B-41CB-B772-F416E904BCB3" name="symbols" typeRef="Any"/>
           <dmn:literalExpression id="_1369CB49-5AE1-4D1A-843D-C8C5468D9AC7">
-            <dmn:text>flatten(for assetIn in receiverAssets.assets[item.flow="in"] return (
-if count(senderAssets.assets[item.flow="out" and item.valueAndPrefix = ("-"+assetIn.valueAndPrefix) 
-and item.symbol = assetIn.symbol and item.contract = assetIn.contract]) &gt; 0 
-then assetIn.symbol else []
-))</dmn:text>
-          </dmn:literalExpression>
-        </dmn:contextEntry>
-        <dmn:contextEntry>
-          <dmn:variable id="_9225C9C5-AD38-4E05-BB95-8010CAA09799" name="countIn" typeRef="number"/>
-          <dmn:literalExpression id="_FCB4898D-B83A-44C8-9A61-E64A5D7E816A">
-            <dmn:text>count(transfersIn)</dmn:text>
+            <dmn:text>receiverAssets.assets[item.flow="in"].symbol</dmn:text>
           </dmn:literalExpression>
         </dmn:contextEntry>
         <dmn:contextEntry>
@@ -1374,7 +1296,7 @@ then assetIn.symbol else []
           <dmn:literalExpression id="_40263BA7-AB31-4EB9-8363-7D5EE25D0DB6">
             <dmn:text>flatten(for assetOut in senderAssets.assets[flow="out" and isEthDust = false] return (
 if count(receiverAssets.assets[flow="in" and ("-"+valueAndPrefix) = assetOut.valueAndPrefix 
-and symbol = assetOut.symbol and contract = assetOut.contract]) &gt; 0 
+and symbol = assetOut.symbol and contract = assetOut.contract]) &gt; 0 or count(senderAssets.assets[flow="in"]) = 0
 then assetOut else []
 ))</dmn:text>
           </dmn:literalExpression>
@@ -1388,14 +1310,9 @@ then assetOut else []
         <dmn:contextEntry>
           <dmn:variable id="_5F32CCAD-A039-4877-8A34-004160F15C8F" name="transferType" typeRef="string"/>
           <dmn:decisionTable id="_FE31BA8B-0D4A-400B-A4E4-23EBFDD0B9CB" hitPolicy="COLLECT" preferredOrientation="Rule-as-Row">
-            <dmn:input id="_FB1FA3B2-87A9-471B-B58C-2EDCA04C4A26">
-              <dmn:inputExpression id="_2A6C0268-5563-4F0E-A23C-74E44FC6819B" typeRef="number">
-                <dmn:text>countIn</dmn:text>
-              </dmn:inputExpression>
-            </dmn:input>
-            <dmn:input id="_379324F3-025C-4896-A89F-DF55C7745E5B">
-              <dmn:inputExpression id="_E7C31017-3A76-4F5B-9197-3516B36955A2" typeRef="number">
-                <dmn:text>countOut</dmn:text>
+            <dmn:input id="_0D5D0F0F-BDC1-466D-B4C7-155B11F7B93F">
+              <dmn:inputExpression id="_69600E58-A9A5-4750-884C-FCF21B34EBFD" typeRef="boolean">
+                <dmn:text>notSameAddress</dmn:text>
               </dmn:inputExpression>
             </dmn:input>
             <dmn:input id="_5AA26E63-4583-4926-9413-795E521610E3">
@@ -1420,11 +1337,8 @@ then assetOut else []
             </dmn:output>
             <dmn:annotation name="annotation-1"/>
             <dmn:rule id="_72E6D4C2-26B6-4628-9955-27EC70E50F4B">
-              <dmn:inputEntry id="_A205ECCF-C2B5-40C5-BF42-2478D2C1533F">
-                <dmn:text>1</dmn:text>
-              </dmn:inputEntry>
-              <dmn:inputEntry id="_DD542C73-8A62-4508-9FC0-893CA198C1BA">
-                <dmn:text>1</dmn:text>
+              <dmn:inputEntry id="_3130786C-6665-4EDF-9512-4029B75EFC5F">
+                <dmn:text>true</dmn:text>
               </dmn:inputEntry>
               <dmn:inputEntry id="_EFBC3E45-7CEA-4E75-8BBD-2E9D870C546E">
                 <dmn:text>
@@ -1446,11 +1360,8 @@ list contains(?,"TRACE")</dmn:text>
               </dmn:annotationEntry>
             </dmn:rule>
             <dmn:rule id="_E9500BAB-D83D-4C58-8786-9A47EB5A1CA3">
-              <dmn:inputEntry id="_D3142B93-A6DA-49C5-9BCD-27B8B59DA859">
-                <dmn:text>1</dmn:text>
-              </dmn:inputEntry>
-              <dmn:inputEntry id="_C69DC50C-F956-4E09-AD2C-7F5E7D31B6AB">
-                <dmn:text>1</dmn:text>
+              <dmn:inputEntry id="_86A56B86-3B35-4098-9CED-B3C78AD5C854">
+                <dmn:text>true</dmn:text>
               </dmn:inputEntry>
               <dmn:inputEntry id="_3A410412-FE58-4A62-BF6B-8266DEF944E4">
                 <dmn:text>
@@ -1472,11 +1383,8 @@ list contains(?,"TRACE")</dmn:text>
               </dmn:annotationEntry>
             </dmn:rule>
             <dmn:rule id="_76B62951-09D6-49E4-A90F-A63FE86905B9">
-              <dmn:inputEntry id="_C56B4727-5EE0-46F6-83AC-826BF4BE1823">
-                <dmn:text>&gt; 0</dmn:text>
-              </dmn:inputEntry>
-              <dmn:inputEntry id="_1B7BBB81-3910-44AC-B2E3-14D2B9F81950">
-                <dmn:text>&gt; 0</dmn:text>
+              <dmn:inputEntry id="_5C7E4DAA-265A-4C84-837D-4BA38272C1CA">
+                <dmn:text>true</dmn:text>
               </dmn:inputEntry>
               <dmn:inputEntry id="_8AF02C63-351B-4BC8-9A88-2BDD2724518E">
                 <dmn:text>
@@ -1496,11 +1404,8 @@ list contains(?,"ERC20 TRANSFER")</dmn:text>
               </dmn:annotationEntry>
             </dmn:rule>
             <dmn:rule id="_BE70FA7C-4FE9-427F-95CD-45501A29E362">
-              <dmn:inputEntry id="_3729BB33-2ACD-4876-A8E0-857754B1E5B9">
-                <dmn:text>1</dmn:text>
-              </dmn:inputEntry>
-              <dmn:inputEntry id="_3AFD8CC1-00F7-450B-AE7D-1E702CD27369">
-                <dmn:text>1</dmn:text>
+              <dmn:inputEntry id="_459B1FDC-8483-4A28-951D-35C59724C01B">
+                <dmn:text>true</dmn:text>
               </dmn:inputEntry>
               <dmn:inputEntry id="_4F893053-8D46-42A3-B656-85E5D128C82D">
                 <dmn:text>list contains(?,"ERC20 TRANSFER")</dmn:text>
@@ -1719,6 +1624,8 @@ Please visit blockschau.io/docs for details.</dmn:description>
           <dmn:text>flatten(if SpecifyAssets.receiverAssets.receiver = SpecifyAssets.senderAssets.sender and 
     count(SpecifyAssets.senderAssets.assets[flow="out" and item.address = item.address1]) &gt; 0 
 then SpecifyAssets.senderAssets.assets[flow="out" and item.address = item.address1]
+else if count(SpecifyAssets.senderAssets.assets[flow="out"]) &gt; 0 and count(SpecifyAssets.senderAssets.assets[flow="in"]) = 0 
+then SpecifyAssets.senderAssets.assets[flow="out"]
 else if 
 SpecifyAssets.receiverAssets.receiver != SpecifyAssets.senderAssets.sender
 then
@@ -1726,7 +1633,8 @@ for assetIn in SpecifyAssets.receiverAssets.assets[flow="in"] return
 if count(SpecifyAssets.senderAssets.assets[flow="out" and item.symbol = assetIn.symbol and item.contract = assetIn.contract 
   and item.valueAndPrefix = "-"+assetIn.value]) &gt; 0 
 then assetIn else []
-else [])</dmn:text>
+else []
+)</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
@@ -1741,7 +1649,7 @@ if count(transfers) &gt; 0 then true else false</dmn:text>
         <dmn:literalExpression id="_FC42BBFB-B235-4AE5-B1BB-0E122DE090EB">
           <dmn:text>not(
 every assetIn in  SpecifyAssets.receiverAssets.assets[flow="in"] satisfies
-  count(SpecifyAssets.senderAssets.assets[item.flow="out" and item.symbol = assetIn.symbol and item.valueAndPrefix = "-"+assetIn.valueAndPrefix]) &gt; 0
+  count(SpecifyAssets.senderAssets.assets[item.flow="out" and item.symbol = assetIn.symbol and item.category = assetIn.category and item.valueAndPrefix = "-"+assetIn.valueAndPrefix]) &gt; 0
 and count(SpecifyAssets.senderAssets.assets) = count(SpecifyAssets.receiverAssets.assets)
 ) 
 and count(union(SpecifyAssets.senderAssets.assets.symbol,SpecifyAssets.receiverAssets.assets.symbol)) &gt; 1    
@@ -1988,7 +1896,14 @@ Please visit blockschau.io/docs for details.</dmn:description>
     <dmn:variable id="_1133A16D-8F72-421C-939E-65BB6DBC351E" name="InspectAddress" typeRef="Any"/>
     <dmn:encapsulatedLogic id="_FBFE023D-348D-4817-B163-D75C46E05AD5" kind="FEEL">
       <dmn:formalParameter id="_766A2E0F-8408-4405-BAFE-C1B1698B903C" name="groupedAssets" typeRef="Any"/>
+      <dmn:formalParameter id="_E0FA7349-1D47-4D78-9B77-41F742BD0F3D" name="address" typeRef="string"/>
       <dmn:context id="_06BF710E-59D6-4C3E-B482-A92FE7C24753">
+        <dmn:contextEntry>
+          <dmn:variable id="_7EDAF45A-70F9-4680-9852-01293E698F30" name="address" typeRef="string"/>
+          <dmn:literalExpression id="_7F419714-D577-40F1-8D27-3731F4B3752D">
+            <dmn:text>address</dmn:text>
+          </dmn:literalExpression>
+        </dmn:contextEntry>
         <dmn:contextEntry>
           <dmn:variable id="_DD33E0D4-8AF4-4462-99BD-3F8E692F9E93" name="countIncoming" typeRef="number"/>
           <dmn:literalExpression id="_D5EE54A4-70EC-47BD-907A-9BE75CA8DA28">
@@ -2000,7 +1915,7 @@ FindAndCountInflows(groupedAssets) else 0</dmn:text>
           <dmn:variable id="_B52DCE67-08DE-4713-8B69-2A19BA7E3883" name="countOutgoing" typeRef="number"/>
           <dmn:literalExpression id="_226C8709-289C-4C67-B5DC-B9731DBA93B1">
             <dmn:text>if groupedAssets != null then 
-FindAndCountOutflows(groupedAssets) else 0</dmn:text>
+FindAndCountPartialOutflows(groupedAssets) else 0</dmn:text>
           </dmn:literalExpression>
         </dmn:contextEntry>
         <dmn:contextEntry>
@@ -2013,22 +1928,21 @@ FindAndCountZeroflows(groupedAssets) else 0</dmn:text>
         <dmn:contextEntry>
           <dmn:variable id="_4E090197-E398-4276-9C55-CD896B102F08" name="category" typeRef="Any"/>
           <dmn:literalExpression id="_A4225E57-E4BF-4028-A7C5-460B47125066">
-            <dmn:text>groupedAssets.category</dmn:text>
+            <dmn:text>if groupedAssets.category != null 
+then flatten(groupedAssets.category).category
+else []</dmn:text>
           </dmn:literalExpression>
         </dmn:contextEntry>
       </dmn:context>
     </dmn:encapsulatedLogic>
-    <dmn:knowledgeRequirement id="_0C0DB094-7321-4D66-9B86-430AA5F7448A">
-      <dmn:requiredKnowledge href="#_AFFFE7CA-2BFC-4712-9FAB-1209450E864F"/>
-    </dmn:knowledgeRequirement>
-    <dmn:knowledgeRequirement id="_D1B3AB09-FEB3-4441-B5D0-A740ADE4D652">
-      <dmn:requiredKnowledge href="#_78391859-CE88-4340-8A3C-8EC586B3C8A9"/>
-    </dmn:knowledgeRequirement>
-    <dmn:knowledgeRequirement id="_FC6AEBB5-5415-48A1-BFDD-CBC946738C5A">
-      <dmn:requiredKnowledge href="#_78391859-CE88-4340-8A3C-8EC586B3C8A9"/>
-    </dmn:knowledgeRequirement>
     <dmn:knowledgeRequirement id="_DA8DA827-CAD7-417E-ADE6-2162FB137332">
       <dmn:requiredKnowledge href="#_CBE9B1C2-B6C1-429C-B24C-E8A479014D63"/>
+    </dmn:knowledgeRequirement>
+    <dmn:knowledgeRequirement id="_77B076B7-AB74-491E-8CDC-0603E38DAF08">
+      <dmn:requiredKnowledge href="#_78391859-CE88-4340-8A3C-8EC586B3C8A9"/>
+    </dmn:knowledgeRequirement>
+    <dmn:knowledgeRequirement id="_11F5EC1E-F613-4D4B-8D40-3B25950EE5D2">
+      <dmn:requiredKnowledge href="#_AFFFE7CA-2BFC-4712-9FAB-1209450E864F"/>
     </dmn:knowledgeRequirement>
   </dmn:businessKnowledgeModel>
   <dmn:decision id="_92AADAF8-1DCF-4AE7-ACF2-811CF502B8FA" name="IdentifyMainActor">
@@ -2052,8 +1966,8 @@ FindAndCountZeroflows(groupedAssets) else 0</dmn:text>
     <dmn:knowledgeRequirement id="_93723593-F30E-4E4A-AD5A-BC669B1A90F6">
       <dmn:requiredKnowledge href="#_A05DB536-E0F5-4A5B-86E0-6AD841B79DCA"/>
     </dmn:knowledgeRequirement>
-    <dmn:knowledgeRequirement id="_48E75E12-2848-4503-801D-C02258FC1BEA">
-      <dmn:requiredKnowledge href="#_0F89B39F-E2E5-4214-A031-E62448E556F4"/>
+    <dmn:knowledgeRequirement id="_1C45C916-B88A-4717-9271-52742ED88BEE">
+      <dmn:requiredKnowledge href="#_68C43F31-6EC6-418E-BB42-B713A41E45B9"/>
     </dmn:knowledgeRequirement>
     <dmn:context id="_D7AE7316-7D55-4F79-B62E-E9571B79E109">
       <dmn:contextEntry>
@@ -2065,13 +1979,19 @@ FindAndCountZeroflows(groupedAssets) else 0</dmn:text>
       <dmn:contextEntry>
         <dmn:variable id="_093D6625-F9AF-442D-82E2-4470F977E356" name="AddressFirstTransfer" typeRef="Any"/>
         <dmn:literalExpression id="_909C2690-CE93-4642-B958-7F3605476050">
-          <dmn:text>FindAssetByIndex("min","ERC20 TRANSFER",balancesGroupedByAddressAndAsset)</dmn:text>
+          <dmn:text>FindAddressByIndexAndCategory(1,"ERC20 TRANSFER", PrepareTransaction.balanceChanges)</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
         <dmn:variable id="_22D8D8C0-2984-4B34-AAC6-3744F50C1F88" name="AddressLastTransfer" typeRef="Any"/>
         <dmn:literalExpression id="_A0843018-33AE-4E9C-8AD6-C28040C82B2B">
-          <dmn:text>FindAssetByIndex("max","ERC20 TRANSFER",balancesGroupedByAddressAndAsset)</dmn:text>
+          <dmn:text>FindAddressByIndexAndCategory(-1,"ERC20 TRANSFER", PrepareTransaction.balanceChanges)</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_20BCC611-DEA1-4414-97F8-BDAF671D49F1" name="addressesFromTraces" typeRef="Any"/>
+        <dmn:literalExpression id="_CF0AB2D1-7804-4C22-85CA-2F1B982A6D96">
+          <dmn:text>PrepareTransaction.traces.to</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
@@ -2081,7 +2001,10 @@ FindAndCountZeroflows(groupedAssets) else 0</dmn:text>
    balancesGroupedByAddressAndAsset,
    PrepareTransaction.from, 
    PrepareTransaction.to,
-   distinct values(append(eOAs, AddressFirstTransfer, AddressLastTransfer)),
+   distinct values(flatten(append(eOAs, 
+                           AddressFirstTransfer.address,AddressFirstTransfer.address1, 
+                           AddressLastTransfer.address,AddressLastTransfer.address1,
+                           addressesFromTraces))),
    eOAs)</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
@@ -2147,6 +2070,26 @@ isEoa: if source = "from" then true
             <dmn:variable id="_56FEDC83-EA12-4C05-8605-AD446C45ECFC" name="receiver" typeRef="Any"/>
             <dmn:literalExpression id="_7C878874-23E4-4954-A689-B1C506E2C328">
               <dmn:text>receiver</dmn:text>
+            </dmn:literalExpression>
+          </dmn:contextEntry>
+          <dmn:contextEntry>
+            <dmn:variable id="_F6F349E0-BE0E-43A6-9A87-693483B84DB6" name="additionalAddresses" typeRef="Any"/>
+            <dmn:literalExpression id="_A0170F49-ABDE-4ED9-8177-EEBD934AF9B5">
+              <dmn:text>EvaluatedCandidates.candidates[item.isEoa = true and item.address != sender.address and item.address != receiver.address 
+and sum(item.countOutgoing,item.countIncoming) &gt; 0].address
+</dmn:text>
+            </dmn:literalExpression>
+          </dmn:contextEntry>
+          <dmn:contextEntry>
+            <dmn:variable id="_33136F2C-5AC4-48F5-88FA-3F23CEB9DE6C" name="EvaluatedCandidates" typeRef="Any"/>
+            <dmn:literalExpression id="_71FA2EBC-31FA-44F3-ADC5-7F88D241E7AE">
+              <dmn:text>EvaluatedCandidates</dmn:text>
+            </dmn:literalExpression>
+          </dmn:contextEntry>
+          <dmn:contextEntry>
+            <dmn:variable id="_B3D719EC-6745-4EB0-AAE0-A1A23FC87C28" name="AddressFirstTransfer" typeRef="Any"/>
+            <dmn:literalExpression id="_73F1ED3B-3EF1-43DD-86D3-06584CCB92E3">
+              <dmn:text>AddressFirstTransfer</dmn:text>
             </dmn:literalExpression>
           </dmn:contextEntry>
         </dmn:context>
@@ -2945,6 +2888,38 @@ isEoa: if source = "from" then true
                 <dmn:text/>
               </dmn:annotationEntry>
             </dmn:rule>
+            <dmn:rule id="_5B689DB5-705A-4F51-AF80-4831950578CE">
+              <dmn:inputEntry id="_40B89DDA-D1CD-4E3E-9A68-30DB7E033FBC">
+                <dmn:text>0</dmn:text>
+              </dmn:inputEntry>
+              <dmn:inputEntry id="_F9065290-D370-4767-B494-D9D837D71965">
+                <dmn:text>&gt; 0</dmn:text>
+              </dmn:inputEntry>
+              <dmn:inputEntry id="_F01EAACB-8A80-4067-950A-B8268B6706F2">
+                <dmn:text>0</dmn:text>
+              </dmn:inputEntry>
+              <dmn:inputEntry id="_F0ED13B1-02B8-4C01-AE52-E92826529E71">
+                <dmn:text>0</dmn:text>
+              </dmn:inputEntry>
+              <dmn:inputEntry id="_C01A714E-2813-4683-B158-60D69B500CAD">
+                <dmn:text>false</dmn:text>
+              </dmn:inputEntry>
+              <dmn:inputEntry id="_5836BA8C-9537-4583-9963-D73C449FA7DC">
+                <dmn:text>0</dmn:text>
+              </dmn:inputEntry>
+              <dmn:inputEntry id="_FCD986F6-01F0-4633-B57F-BDD91F8CA34F">
+                <dmn:text>-</dmn:text>
+              </dmn:inputEntry>
+              <dmn:inputEntry id="_CF42D4BA-0CAD-4F43-B66D-210A3FC56E92">
+                <dmn:text>-</dmn:text>
+              </dmn:inputEntry>
+              <dmn:outputEntry id="_15B933E3-F87E-44C0-A8E0-186B54090F03">
+                <dmn:text>"from"</dmn:text>
+              </dmn:outputEntry>
+              <dmn:annotationEntry>
+                <dmn:text/>
+              </dmn:annotationEntry>
+            </dmn:rule>
             <dmn:rule id="_6CE927CF-D66B-42EB-B9F4-23D4DEFE659E">
               <dmn:inputEntry id="_05189804-4C57-47E9-8B30-FD5A16F59C90">
                 <dmn:text>0</dmn:text>
@@ -2962,10 +2937,10 @@ isEoa: if source = "from" then true
                 <dmn:text>false</dmn:text>
               </dmn:inputEntry>
               <dmn:inputEntry id="_BCB9562B-359B-415D-BB36-F3AF03AEDE6B">
-                <dmn:text>0</dmn:text>
+                <dmn:text>-</dmn:text>
               </dmn:inputEntry>
               <dmn:inputEntry id="_A4E5608C-6974-4FC4-A175-4B2ABA9C2971">
-                <dmn:text>0</dmn:text>
+                <dmn:text>-</dmn:text>
               </dmn:inputEntry>
               <dmn:inputEntry id="_C43DAF1E-A631-4E95-931B-D67F1E6DD3FF">
                 <dmn:text>true</dmn:text>
@@ -2982,56 +2957,6 @@ isEoa: if source = "from" then true
         <dmn:contextEntry>
           <dmn:literalExpression id="_FF0542A1-D653-482F-B6B5-E450A449D84C">
             <dmn:text>receiver</dmn:text>
-          </dmn:literalExpression>
-        </dmn:contextEntry>
-      </dmn:context>
-    </dmn:encapsulatedLogic>
-  </dmn:businessKnowledgeModel>
-  <dmn:businessKnowledgeModel id="_0F89B39F-E2E5-4214-A031-E62448E556F4" name="FindAssetByIndex">
-    <dmn:extensionElements/>
-    <dmn:variable id="_F53C7E82-F527-49DB-9ACB-533D7E58B1C6" name="FindAssetByIndex" typeRef="string"/>
-    <dmn:encapsulatedLogic id="_B5492BE1-49B8-4D56-A9E6-77385E65D2E3" kind="FEEL">
-      <dmn:formalParameter id="_26E70CA8-466C-4ACA-9840-59C1853F7864" name="find" typeRef="string"/>
-      <dmn:formalParameter id="_62820CC6-5686-4009-9C96-FD01786899BD" name="cat" typeRef="string"/>
-      <dmn:formalParameter id="_AD576696-7CFB-4BC3-AF1B-1DBAF49AFD34" name="groupedBalances" typeRef="Any"/>
-      <dmn:context id="_3F7FF53A-5EF9-4E29-BFA9-0D714EEB72F2">
-        <dmn:contextEntry>
-          <dmn:variable id="_BFFFBAB5-A8F2-4333-B651-AAAEAA82296B" name="notEmptyBalances" typeRef="boolean"/>
-          <dmn:literalExpression id="_C72B52A9-279F-44AF-B69A-641E92718F3A">
-            <dmn:text>if groupedBalances != null and count(get entries(groupedBalances).key) &gt; 0 then true else false</dmn:text>
-          </dmn:literalExpression>
-        </dmn:contextEntry>
-        <dmn:contextEntry>
-          <dmn:variable id="_02AE73D4-87F9-45DB-A608-CCCE1D1E5A18" name="balances" typeRef="Any"/>
-          <dmn:literalExpression id="_4AB3BC56-6BC0-486C-B65C-646B5ED10BA5">
-            <dmn:text>if notEmptyBalances 
-          then flatten(for address in get entries(groupedBalances).key return get value(groupedBalances, address)[1].category[1]) 
-          else []</dmn:text>
-          </dmn:literalExpression>
-        </dmn:contextEntry>
-        <dmn:contextEntry>
-          <dmn:variable id="_F7E75AE7-6C2D-46E0-B7B5-072EAA7DCDF4" name="index" typeRef="number"/>
-          <dmn:literalExpression id="_FE036433-DCEB-49A4-992C-99BF9956ECBB">
-            <dmn:text>if count(balances[item.category=cat].index) &gt; 0 
-        then 
-           if find = "min" then min(balances[item.category=cat].index) 
-           else max(balances[item.category=cat].index)
-        else 0</dmn:text>
-          </dmn:literalExpression>
-        </dmn:contextEntry>
-        <dmn:contextEntry>
-          <dmn:variable id="_788A2E28-EDEA-40D6-886B-AC61D392EFF2" name="addresses" typeRef="Any"/>
-          <dmn:literalExpression id="_F9D92095-C693-455D-854E-B74E015D596A">
-            <dmn:text>flatten(for address in get entries(groupedBalances).key 
-        return 
-        if count(get value(groupedBalances, address)[1].category[1]) &gt; 0 
-        then if list contains(get value(groupedBalances, address)[1].category[1].index,index) then address else [] 
-        else [])</dmn:text>
-          </dmn:literalExpression>
-        </dmn:contextEntry>
-        <dmn:contextEntry>
-          <dmn:literalExpression id="_BC46D6FA-1C7C-46A6-A615-42425022C446">
-            <dmn:text>if count(addresses) &gt; 0 then addresses[1] else null</dmn:text>
           </dmn:literalExpression>
         </dmn:contextEntry>
       </dmn:context>
@@ -3070,7 +2995,7 @@ _0: flatten(for asset in balances return if asset.address = address then
  category: if count(GetPartial(partial,asset)) &gt; 0 
          then append(GetPartial(partial,asset).category[1], 
          {index: asset.index, category: asset.category}) 
-         else append([],{index: asset.index, category: asset.category})
+         else [{index: asset.index, category: asset.category}]
  } 
  else []),
 _1: for token in distinct values(_0.tokenId) 
@@ -3078,7 +3003,7 @@ _1: for token in distinct values(_0.tokenId)
  }._1
 ]}))
 
-//Check on "0" is required to avoid ERROR (zero value addition throws ERROR). </dmn:text>
+//Check on "0" is required to avoid error (zero value addition throws ERROR). </dmn:text>
       </dmn:literalExpression>
     </dmn:encapsulatedLogic>
     <dmn:knowledgeRequirement id="_73CAE792-4A47-4C11-A41A-77B237DEF800">
@@ -3090,37 +3015,87 @@ _1: for token in distinct values(_0.tokenId)
     <dmn:variable id="_740B2EFA-D026-4EAD-9597-FDBEE96028FE" name="FindAndCountInflows" typeRef="number"/>
     <dmn:encapsulatedLogic id="_46F4E339-252A-427A-9D80-2DEA89AD4B39" kind="FEEL">
       <dmn:formalParameter id="_5D4B6C0A-3793-4566-87B4-E17E47AB197A" name="groupedAssets" typeRef="Any"/>
-      <dmn:literalExpression id="_627F2EE7-7A48-4931-A848-C0D7744B60EE">
-        <dmn:text>sum(
-  for asset in groupedAssets return if {
-  value: if starts with(asset.valueAndPrefix, "0E") then "0" else asset.valueAndPrefix,
-  num: number(value,null,".")
-  }.num &gt; 0.000000001 then 1 
-  else 0
-)
-// values &lt; 0.000000001 are not considered as inflows.</dmn:text>
-      </dmn:literalExpression>
-    </dmn:encapsulatedLogic>
-  </dmn:businessKnowledgeModel>
-  <dmn:businessKnowledgeModel id="_78391859-CE88-4340-8A3C-8EC586B3C8A9" name="FindAndCountOutflows">
-    <dmn:extensionElements/>
-    <dmn:variable id="_1C25F048-BE81-4394-BE36-3E50EC5F8671" name="FindAndCountOutflows" typeRef="number"/>
-    <dmn:encapsulatedLogic id="_12C255FC-0D74-4D67-88AB-4DF4BABFE113" kind="FEEL">
-      <dmn:formalParameter id="_A27BA766-A7A3-48A1-842F-A1CE58D6900A" name="groupedAssets" typeRef="Any"/>
-      <dmn:literalExpression id="_33029832-D746-4DA5-874D-3C80C8C8C9E9">
-        <dmn:text>sum(
-  for asset in groupedAssets return if {
-  value: if starts with(asset.valueAndPrefix, "0E") then "0" else asset.valueAndPrefix,
-  num: number(value,null,".")
-  }.num &lt; -0.000000001 then 1 
-   else if list contains(asset.flow,"out") 
-   and not(list contains(asset.includesEthDust, true))
-   and not(starts with(asset.valueAndPrefix, "0E"))  then 1
+      <dmn:context id="_627F2EE7-7A48-4931-A848-C0D7744B60EE">
+        <dmn:contextEntry>
+          <dmn:variable id="_A59CD6D6-9A76-47A5-9468-873F8F04F8D0" name="valueAsNumber" typeRef="number"/>
+          <dmn:literalExpression id="_9D16B5A4-306F-4B7E-96CA-8896A28F8F36">
+            <dmn:text>function (value) {
+valueAndPrefix: if starts with(value, "0E") then "0" else value,
+num: number(valueAndPrefix,null,".")
+}.num 
+ 
+ </dmn:text>
+          </dmn:literalExpression>
+        </dmn:contextEntry>
+        <dmn:contextEntry>
+          <dmn:variable id="_4D27DB29-226E-42B1-9BCF-FDC98958FD7B" name="inflows" typeRef="number"/>
+          <dmn:literalExpression id="_903AA24B-FBB1-4489-8BE7-6F298CC53EC9">
+            <dmn:text>sum(
+  for asset in groupedAssets return 
+  if valueAsNumber(asset.valueAndPrefix) &gt; 0.000000001
+  and not(contains(lower case(NotNull(asset.symbol,"string")),"debt")) then 1 
   else 0
 ) 
-// values &gt; -0.000000001 are not considered as outflows.</dmn:text>
-      </dmn:literalExpression>
+// values &lt; 0.000000001 are not considered as inflows.
+//  debt tokens do not count as inflows.  </dmn:text>
+          </dmn:literalExpression>
+        </dmn:contextEntry>
+        <dmn:contextEntry>
+          <dmn:literalExpression id="_9C6AA303-7044-479D-BAD9-6A49B7754054">
+            <dmn:text>inflows</dmn:text>
+          </dmn:literalExpression>
+        </dmn:contextEntry>
+      </dmn:context>
     </dmn:encapsulatedLogic>
+    <dmn:knowledgeRequirement id="_664708AE-0F3A-4E84-9E51-EA058C1605C9">
+      <dmn:requiredKnowledge href="#_B2287314-6B3F-4BDD-822F-A08D136E8135"/>
+    </dmn:knowledgeRequirement>
+  </dmn:businessKnowledgeModel>
+  <dmn:businessKnowledgeModel id="_78391859-CE88-4340-8A3C-8EC586B3C8A9" name="FindAndCountPartialOutflows">
+    <dmn:extensionElements/>
+    <dmn:variable id="_1C25F048-BE81-4394-BE36-3E50EC5F8671" name="FindAndCountPartialOutflows" typeRef="number"/>
+    <dmn:encapsulatedLogic id="_12C255FC-0D74-4D67-88AB-4DF4BABFE113" kind="FEEL">
+      <dmn:formalParameter id="_A27BA766-A7A3-48A1-842F-A1CE58D6900A" name="groupedAssets" typeRef="Any"/>
+      <dmn:context id="_33029832-D746-4DA5-874D-3C80C8C8C9E9">
+        <dmn:contextEntry>
+          <dmn:variable id="_713DB6E1-A41A-4D48-A8C1-A9407747EF0E" name="valueAsNumber" typeRef="number"/>
+          <dmn:literalExpression id="_3E2A5F27-6AC3-4048-B43D-2E03723B2C91">
+            <dmn:text>function (value) {
+valueAndPrefix: if starts with(value, "0E") then "0" else value,
+num: number(valueAndPrefix,null,".")
+}.num 
+ 
+ </dmn:text>
+          </dmn:literalExpression>
+        </dmn:contextEntry>
+        <dmn:contextEntry>
+          <dmn:variable id="_88E6C165-A03E-4786-B4D6-7070939D07E2" name="partialOutflows" typeRef="number"/>
+          <dmn:literalExpression id="_FE1235B4-C1F3-40A4-84F1-54E18425A3EB">
+            <dmn:text>sum(
+  for asset in groupedAssets return 
+  if valueAsNumber(asset.valueAndPrefix) &lt; -0.000000001 then 1 
+  else if list contains(asset.flow,"out") 
+        and not(list contains(asset.includesEthDust, true))
+      //  and not(starts with(asset.valueAndPrefix, "0E"))
+          then 1
+  else if contains(lower case(NotNull(asset.symbol,"string")),"debt") 
+       and (valueAsNumber(asset.valueAndPrefix) * -1) &lt; -0.000000001 then 1 
+  else 0
+) 
+// values &gt; -0.000000001 are not considered as outflows.
+// in case of a "%debt%" token, the value is multiplied by (-1).</dmn:text>
+          </dmn:literalExpression>
+        </dmn:contextEntry>
+        <dmn:contextEntry>
+          <dmn:literalExpression id="_3C83E782-1CD7-4B7E-A34A-94F566B164A0">
+            <dmn:text>partialOutflows</dmn:text>
+          </dmn:literalExpression>
+        </dmn:contextEntry>
+      </dmn:context>
+    </dmn:encapsulatedLogic>
+    <dmn:knowledgeRequirement id="_1D66AF17-4928-4E27-9F93-87DB939B1318">
+      <dmn:requiredKnowledge href="#_B2287314-6B3F-4BDD-822F-A08D136E8135"/>
+    </dmn:knowledgeRequirement>
   </dmn:businessKnowledgeModel>
   <dmn:businessKnowledgeModel id="_CBE9B1C2-B6C1-429C-B24C-E8A479014D63" name="FindAndCountZeroflows">
     <dmn:extensionElements/>
@@ -3153,10 +3128,13 @@ _1: for token in distinct values(_0.tokenId)
             <dmn:text>for address in addressList return 
 {
 address: address,
-result: InspectAddress(get value(groupedAssets,address)[1]),
+result: InspectAddress(get value(groupedAssets,address)[1],address),
 isEoa: list contains(eOAs,address),
-sending: result.countOutgoing &gt; 0, 
-receiving: result.countIncoming &gt; 0,
+countIncoming: result.countIncoming,
+countOutgoing: result.countOutgoing,
+countZeros: result.countZeros,
+sending: countOutgoing &gt; 0, 
+receiving: countIncoming &gt; 0,
 category: result.category
 }</dmn:text>
           </dmn:literalExpression>
@@ -3184,8 +3162,10 @@ else if count(candidates[sending=true and receiving=true and isEoa = true]) &gt;
  then candidates[sending=true and receiving=true and isEoa = true][1]
 else if count(candidates[receiving=true and isEoa = true]) &gt;= 1 
   then candidates[receiving=true and isEoa = true][1]
+else if count(candidates[receiving=true and list contains(category,"ERC20 TRANSFER")]) &gt;= 1
+   then candidates[receiving=true and list contains(category,"ERC20 TRANSFER")][1]
 else if count(candidates[receiving=true]) &gt;= 1
-     then candidates[receiving=true][-1]
+     then candidates[receiving=true ][-1]
 else if count(candidates) &gt;= 1 
      then candidates[-1]    
 else null  </dmn:text>
@@ -3196,27 +3176,35 @@ else null  </dmn:text>
             <dmn:contextEntry>
               <dmn:variable id="_02D8F37C-EB98-4BBD-9386-C506C48B78E6" name="from" typeRef="Any"/>
               <dmn:literalExpression id="_FB904A80-758F-4FB8-A411-256DDFB5CB49">
-                <dmn:text>InspectAddress(
-  get value(groupedAssets,from)[1])</dmn:text>
+                <dmn:text>context put(InspectAddress(
+  get value(groupedAssets,from)[1], from),"isEoa",true)</dmn:text>
               </dmn:literalExpression>
             </dmn:contextEntry>
             <dmn:contextEntry>
               <dmn:variable id="_1E3C066B-3CC1-4465-A3FD-CCCE0A6B9BD4" name="to" typeRef="Any"/>
               <dmn:literalExpression id="_10AA63D6-40B7-4DAF-A4C1-031ABA8123CD">
                 <dmn:text>context put(InspectAddress(
-  get value(groupedAssets,to)[1]),"isEoa", list contains(eOAs,to))</dmn:text>
+  get value(groupedAssets,to)[1], to),"isEoa", list contains(eOAs,to))</dmn:text>
               </dmn:literalExpression>
             </dmn:contextEntry>
             <dmn:contextEntry>
               <dmn:variable id="_1114B337-2AF4-4E6E-9B08-8BF1FB2805CB" name="senderCandidate" typeRef="Any"/>
               <dmn:literalExpression id="_586BE853-5A10-4A91-894D-0D6CA842882E">
-                <dmn:text>FormatCandidate(senderCandidate)</dmn:text>
+                <dmn:text>FormatCandidate(senderCandidate)
+</dmn:text>
               </dmn:literalExpression>
             </dmn:contextEntry>
             <dmn:contextEntry>
               <dmn:variable id="_6497D6E5-EB07-4D2B-A572-7587FAA526DD" name="receiverCandidate" typeRef="Any"/>
               <dmn:literalExpression id="_967DAE1F-D6CC-4B73-9751-0578AA419559">
-                <dmn:text>FormatCandidate(receiverCandidate)</dmn:text>
+                <dmn:text>FormatCandidate(receiverCandidate)
+</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_C880CAED-30F5-4305-98FC-27F13E5E75F8" name="candidates" typeRef="Any"/>
+              <dmn:literalExpression id="_3575D7A3-8D48-4DBF-9AB1-021FE3FF3FFE">
+                <dmn:text>append(candidates, from, to)</dmn:text>
               </dmn:literalExpression>
             </dmn:contextEntry>
           </dmn:context>
@@ -3237,15 +3225,19 @@ else null  </dmn:text>
       <dmn:formalParameter id="_35E441B4-76C0-4CF1-AE7C-76698A41BD45" name="candidate" typeRef="Any"/>
       <dmn:literalExpression id="_C727E5D1-2B62-4E6A-95C1-64725A77D2F4">
         <dmn:text>{
-address: if candidate != null then candidate.address else 0, 
-countIncoming:if candidate != null then candidate.result.countIncoming else 0,
-countOutgoing: if candidate != null then candidate.result.countOutgoing else 0,
-isEoa: if candidate != null then candidate.isEoa else false,
-category:  if candidate != null then candidate.category else []
+address: NotNull(candidate.address,"number"), 
+countIncoming: NotNull(candidate.result.countIncoming,"number"),
+countOutgoing:  NotNull(candidate.result.countOutgoing,"number"),
+countZeros: NotNull(candidate.result.countZeros,"number"),
+isEoa: NotNull(candidate.isEoa,"boolean"),
+category:  NotNull(candidate.category,"list")
 }
 </dmn:text>
       </dmn:literalExpression>
     </dmn:encapsulatedLogic>
+    <dmn:knowledgeRequirement id="_5ABDCA0A-3110-4D38-81E5-0095443A333C">
+      <dmn:requiredKnowledge href="#_B2287314-6B3F-4BDD-822F-A08D136E8135"/>
+    </dmn:knowledgeRequirement>
   </dmn:businessKnowledgeModel>
   <dmn:businessKnowledgeModel id="_EEF2A37E-7C24-4D4D-9FE4-D5A0231369CD" name="GetPartial">
     <dmn:extensionElements/>
@@ -3255,6 +3247,81 @@ category:  if candidate != null then candidate.category else []
       <dmn:formalParameter id="_17D020F3-4A4F-4D37-9D2E-D99CDFE9E411" name="asset" typeRef="Any"/>
       <dmn:literalExpression id="_69BBCDA4-CB0B-4CB1-A0C6-331E74FB7996">
         <dmn:text>partial[item.contract = asset.contract and item.symbol = asset.symbol]</dmn:text>
+      </dmn:literalExpression>
+    </dmn:encapsulatedLogic>
+  </dmn:businessKnowledgeModel>
+  <dmn:businessKnowledgeModel id="_4F042B7A-CAC6-4A03-B10B-06B69FF76E1F" name="FindAndCountOutflows">
+    <dmn:extensionElements/>
+    <dmn:variable id="_88DAE237-3587-4C6E-90F0-5674A8B6A4BC" name="FindAndCountOutflows" typeRef="number"/>
+    <dmn:encapsulatedLogic id="_40A8F242-D3A1-417F-AED9-F68A169D818A" kind="FEEL">
+      <dmn:formalParameter id="_5CF67D65-6EB9-4CF0-8BC2-0D47C2E38A93" name="groupedAssets" typeRef="Any"/>
+      <dmn:literalExpression id="_A17E7625-8A10-4FA9-8CA3-FE87E626D6D2">
+        <dmn:text>sum(
+  for asset in groupedAssets return if {
+  value: if starts with(asset.valueAndPrefix, "0E") then "0" else asset.valueAndPrefix,
+  num: number(value,null,".")
+  }.num &lt; -0.000000001 then 1 
+  else 0
+) 
+// values &gt; -0.000000001 are not considered as outflows.</dmn:text>
+      </dmn:literalExpression>
+    </dmn:encapsulatedLogic>
+  </dmn:businessKnowledgeModel>
+  <dmn:businessKnowledgeModel id="_68C43F31-6EC6-418E-BB42-B713A41E45B9" name="FindAddressByIndexAndCategory">
+    <dmn:extensionElements/>
+    <dmn:variable id="_0FD5833D-43D0-4EAA-A605-9110CE7FE4C5" name="FindAddressByIndexAndCategory" typeRef="Any"/>
+    <dmn:encapsulatedLogic id="_EDD9B871-8AD1-4E57-886E-921C2204EC62" kind="FEEL">
+      <dmn:formalParameter id="_26094038-09FD-4A4B-84DC-8DA57156DBE6" name="index" typeRef="number"/>
+      <dmn:formalParameter id="_7020988D-D27B-4507-BDB7-3D2355DAE8B8" name="cat" typeRef="string"/>
+      <dmn:formalParameter id="_6181CCEF-8B69-4B0E-A4F8-FCF6B66A3567" name="balances" typeRef="Any"/>
+      <dmn:context id="_1587799C-3054-4CF9-A295-460B60E551A2">
+        <dmn:contextEntry>
+          <dmn:variable id="_EB75CFFC-9F03-4776-9464-CC352E861525" name="sortBalances" typeRef="Any"/>
+          <dmn:literalExpression id="_1EB03F0D-573B-4F9A-8708-01B0F0DE1355">
+            <dmn:text>function(balances) sort( list: balances, precedes: function(x,y) x.index &lt; y.index )</dmn:text>
+          </dmn:literalExpression>
+        </dmn:contextEntry>
+        <dmn:contextEntry>
+          <dmn:variable id="_4BE24A7D-65EC-4A27-9680-5F634B56FAF1" name="assetFound" typeRef="Any"/>
+          <dmn:literalExpression id="_B66ACC1D-1E0A-40BC-9785-99BF3B659777">
+            <dmn:text>if count(balances) &gt; 0 and balances[item.category = cat] != [] then 
+sortBalances(balances[item.category = cat])[index] else {
+address: "unknown", address1: "unknown"
+}</dmn:text>
+          </dmn:literalExpression>
+        </dmn:contextEntry>
+        <dmn:contextEntry>
+          <dmn:context id="_D0F3A920-E8A2-4899-99EB-AC0E40CE1BE0">
+            <dmn:contextEntry>
+              <dmn:variable id="_AFD42C2B-069C-446C-86AA-D5E558BC1E4F" name="address" typeRef="string"/>
+              <dmn:literalExpression id="_9CCD9927-BEAF-4535-B869-F40069C44A65">
+                <dmn:text>assetFound.address</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_20B972D1-F4AD-48B0-8CE5-0A93B35A5572" name="address1" typeRef="string"/>
+              <dmn:literalExpression id="_5009653F-5F13-407C-90FA-79F96C673038">
+                <dmn:text>assetFound.address1</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:contextEntry>
+      </dmn:context>
+    </dmn:encapsulatedLogic>
+  </dmn:businessKnowledgeModel>
+  <dmn:businessKnowledgeModel id="_B2287314-6B3F-4BDD-822F-A08D136E8135" name="NotNull">
+    <dmn:extensionElements/>
+    <dmn:variable id="_37458515-F327-4CBE-A431-DB1097E2BC07" name="NotNull" typeRef="Any"/>
+    <dmn:encapsulatedLogic id="_9505715E-7D7A-4A9C-BD44-4A64B9965D42" kind="FEEL">
+      <dmn:formalParameter id="_D361370F-C5DD-4E19-AD63-F51EBDE80693" name="value" typeRef="Any"/>
+      <dmn:formalParameter id="_7EEAFE61-F820-4016-B028-841C2E367953" name="type" typeRef="string"/>
+      <dmn:literalExpression id="_965A9397-A1D0-4A9C-94D1-F2048DCA2D71">
+        <dmn:text>if value != null then value else 
+  if type = "string" then "" 
+  else if type ="number" then 0 
+  else if type = "boolean" then false 
+  else if type = "list" then []
+else ""  </dmn:text>
       </dmn:literalExpression>
     </dmn:encapsulatedLogic>
   </dmn:businessKnowledgeModel>
@@ -3427,18 +3494,6 @@ category:  if candidate != null then candidate.category else []
           <kie:ComponentWidths dmnElementRef="_C2DAA833-3F1D-41E3-B1F3-0AE66F24D86C">
             <kie:width>575</kie:width>
           </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_87295ED6-C32B-4855-A1DE-8814F2CBDD8A">
-            <kie:width>575</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_0B7F40C4-CD50-4C6F-B5FB-6805CDB80401">
-            <kie:width>575</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_C66DDA00-ED58-4380-A4F2-A9260B5CD6CE">
-            <kie:width>575</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_CAB144D1-D18B-48A4-AD6C-8FAABFFBC052">
-            <kie:width>575</kie:width>
-          </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_1B7E7EE9-6CB2-4809-920C-4D9049235E0F">
             <kie:width>575</kie:width>
           </kie:ComponentWidths>
@@ -3462,73 +3517,65 @@ category:  if candidate != null then candidate.category else []
           <kie:ComponentWidths dmnElementRef="_55F7EAE6-4DAD-4D94-9EF1-88D7792C91DC">
             <kie:width>50</kie:width>
             <kie:width>123</kie:width>
-            <kie:width>1045</kie:width>
+            <kie:width>1278</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_8D665BAC-A97F-4BF4-9E32-34BE5A68EBAB">
-            <kie:width>1045</kie:width>
+            <kie:width>1278</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_3C40C474-B498-4A28-836F-4FA6D7416A50">
-            <kie:width>1045</kie:width>
+            <kie:width>1278</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_D91FFFF1-DD80-4AFB-90C3-DDD3165C601A">
-            <kie:width>1045</kie:width>
+            <kie:width>1278</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_8A21B199-5A7C-4FB8-A2A7-F3992F62F6B6">
-            <kie:width>1045</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_AFF3FD03-99BE-4C78-8A8C-1C0B1C29F749">
-            <kie:width>1045</kie:width>
+            <kie:width>1278</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_08BAA329-3A3A-47EF-B459-F15771DBEFFA">
-            <kie:width>1045</kie:width>
+            <kie:width>1278</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_A87BCD92-BBA4-4FBF-B440-409A2BE3D3DC">
-            <kie:width>1045</kie:width>
+            <kie:width>1278</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_112F6423-4F38-456D-A5FA-BB658FA3AC18">
-            <kie:width>1045</kie:width>
+            <kie:width>1278</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_E4882977-6371-4277-B2D4-5E9E3A650005">
             <kie:width>50</kie:width>
-            <kie:width>103</kie:width>
-            <kie:width>103</kie:width>
-            <kie:width>103</kie:width>
-            <kie:width>103</kie:width>
-            <kie:width>103</kie:width>
-            <kie:width>102</kie:width>
-            <kie:width>239</kie:width>
-            <kie:width>119</kie:width>
+            <kie:width>107</kie:width>
+            <kie:width>106</kie:width>
+            <kie:width>106</kie:width>
+            <kie:width>106</kie:width>
+            <kie:width>105</kie:width>
+            <kie:width>247</kie:width>
+            <kie:width>431</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_86D66FE5-CA43-496F-8950-E30CE2C353B0">
-            <kie:width>1045</kie:width>
+            <kie:width>1278</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_9DCD2D26-389F-4172-A846-E5886FC38FCB">
             <kie:width>50</kie:width>
-            <kie:width>1238</kie:width>
+            <kie:width>1471</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_F6D6F715-2A74-4AD3-A983-B9FA87D63E54">
             <kie:width>50</kie:width>
             <kie:width>120</kie:width>
-            <kie:width>1384</kie:width>
+            <kie:width>1153</kie:width>
           </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_E577BC5B-FE6F-4C7A-8C9F-7391C5BB3D76">
-            <kie:width>1384</kie:width>
+          <kie:ComponentWidths dmnElementRef="_E0B7FCC2-7181-411B-8A51-001B5979C30D">
+            <kie:width>1153</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_1369CB49-5AE1-4D1A-843D-C8C5468D9AC7">
-            <kie:width>1384</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_FCB4898D-B83A-44C8-9A61-E64A5D7E816A">
-            <kie:width>1384</kie:width>
+            <kie:width>1153</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_40263BA7-AB31-4EB9-8363-7D5EE25D0DB6">
-            <kie:width>1384</kie:width>
+            <kie:width>1153</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_D7317000-4022-42CF-9248-569B4FDA3F71">
-            <kie:width>1384</kie:width>
+            <kie:width>1153</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_FE31BA8B-0D4A-400B-A4E4-23EBFDD0B9CB">
             <kie:width>50</kie:width>
-            <kie:width>231</kie:width>
             <kie:width>100</kie:width>
             <kie:width>220</kie:width>
             <kie:width>161</kie:width>
@@ -3537,11 +3584,11 @@ category:  if candidate != null then candidate.category else []
             <kie:width>100</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_AFB35D0E-BF50-45A5-9197-3FD9CAD77908">
-            <kie:width>1384</kie:width>
+            <kie:width>1153</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_56FC63B4-7BDC-4673-9070-76F6D6BD40C8">
             <kie:width>50</kie:width>
-            <kie:width>1574</kie:width>
+            <kie:width>1343</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_E7DCCA40-4111-45C4-BA8E-8D01EDCB1938">
             <kie:width>50</kie:width>
@@ -3678,23 +3725,26 @@ category:  if candidate != null then candidate.category else []
           <kie:ComponentWidths dmnElementRef="_06BF710E-59D6-4C3E-B482-A92FE7C24753">
             <kie:width>50</kie:width>
             <kie:width>120</kie:width>
-            <kie:width>680</kie:width>
+            <kie:width>470</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_7F419714-D577-40F1-8D27-3731F4B3752D">
+            <kie:width>470</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_D5EE54A4-70EC-47BD-907A-9BE75CA8DA28">
-            <kie:width>680</kie:width>
+            <kie:width>470</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_226C8709-289C-4C67-B5DC-B9731DBA93B1">
-            <kie:width>680</kie:width>
+            <kie:width>470</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_90612064-AB18-4EFA-97D3-08EFA619ECFA">
-            <kie:width>680</kie:width>
+            <kie:width>470</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_A4225E57-E4BF-4028-A7C5-460B47125066">
-            <kie:width>680</kie:width>
+            <kie:width>470</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_FBFE023D-348D-4817-B163-D75C46E05AD5">
             <kie:width>50</kie:width>
-            <kie:width>870</kie:width>
+            <kie:width>660</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_D7AE7316-7D55-4F79-B62E-E9571B79E109">
             <kie:width>50</kie:width>
@@ -3708,6 +3758,9 @@ category:  if candidate != null then candidate.category else []
             <kie:width>1273</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_A0843018-33AE-4E9C-8AD6-C28040C82B2B">
+            <kie:width>1273</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_CF0AB2D1-7804-4C22-85CA-2F1B982A6D96">
             <kie:width>1273</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_770DC6E9-7501-44A6-879E-F52FD5BAA53B">
@@ -3737,6 +3790,15 @@ category:  if candidate != null then candidate.category else []
             <kie:width>1083</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_7C878874-23E4-4954-A689-B1C506E2C328">
+            <kie:width>1083</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_A0170F49-ABDE-4ED9-8177-EEBD934AF9B5">
+            <kie:width>1083</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_71FA2EBC-31FA-44F3-ADC5-7F88D241E7AE">
+            <kie:width>1083</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_73F1ED3B-3EF1-43DD-86D3-06584CCB92E3">
             <kie:width>1083</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_71AFC13F-CFA1-4ACB-AB4B-92922DC71BAC">
@@ -3791,75 +3853,51 @@ category:  if candidate != null then candidate.category else []
           <kie:ComponentWidths dmnElementRef="_0690A20C-40B6-48BE-903B-E07B745BD5B9">
             <kie:width>50</kie:width>
             <kie:width>120</kie:width>
-            <kie:width>1070</kie:width>
+            <kie:width>1098</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_7956536F-2596-4F58-8F85-25CF215EC7F3">
-            <kie:width>1070</kie:width>
+            <kie:width>1098</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_C09ECFEF-7441-46DE-9A21-62F78F3C1089">
-            <kie:width>1070</kie:width>
+            <kie:width>1098</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_DFAD5FD4-195F-4C6A-8BDC-47909DF80F2A">
-            <kie:width>1070</kie:width>
+            <kie:width>1098</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_022B7ADC-B13E-44F8-A108-817EE5309DAC">
-            <kie:width>1070</kie:width>
+            <kie:width>1098</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_4F03E27A-2A09-4D9E-B89F-89F8F108A46F">
-            <kie:width>1070</kie:width>
+            <kie:width>1098</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_254ED381-4180-43F4-BF38-DA28B5723E82">
-            <kie:width>1070</kie:width>
+            <kie:width>1098</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_45BD66FA-28F4-4062-9F2F-0410506C9B3A">
-            <kie:width>1070</kie:width>
+            <kie:width>1098</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_D0F11BF2-2532-4DDC-B084-5D4CC32E1A4F">
-            <kie:width>1070</kie:width>
+            <kie:width>1098</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_BED39F8F-10DF-4312-A0DD-5FF76A4AAAB7">
             <kie:width>50</kie:width>
-            <kie:width>100</kie:width>
-            <kie:width>100</kie:width>
-            <kie:width>100</kie:width>
-            <kie:width>100</kie:width>
-            <kie:width>100</kie:width>
-            <kie:width>100</kie:width>
-            <kie:width>100</kie:width>
-            <kie:width>100</kie:width>
-            <kie:width>100</kie:width>
+            <kie:width>103</kie:width>
+            <kie:width>103</kie:width>
+            <kie:width>103</kie:width>
+            <kie:width>103</kie:width>
+            <kie:width>103</kie:width>
+            <kie:width>103</kie:width>
+            <kie:width>103</kie:width>
+            <kie:width>104</kie:width>
+            <kie:width>103</kie:width>
             <kie:width>100</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_FF0542A1-D653-482F-B6B5-E450A449D84C">
-            <kie:width>1070</kie:width>
+            <kie:width>1098</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_83998E59-8C23-449F-9893-49B353137ECB">
             <kie:width>50</kie:width>
-            <kie:width>1260</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_3F7FF53A-5EF9-4E29-BFA9-0D714EEB72F2">
-            <kie:width>50</kie:width>
-            <kie:width>120</kie:width>
-            <kie:width>979</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_C72B52A9-279F-44AF-B69A-641E92718F3A">
-            <kie:width>979</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_4AB3BC56-6BC0-486C-B65C-646B5ED10BA5">
-            <kie:width>979</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_FE036433-DCEB-49A4-992C-99BF9956ECBB">
-            <kie:width>979</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_F9D92095-C693-455D-854E-B74E015D596A">
-            <kie:width>979</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_BC46D6FA-1C7C-46A6-A615-42425022C446">
-            <kie:width>979</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_B5492BE1-49B8-4D56-A9E6-77385E65D2E3">
-            <kie:width>50</kie:width>
-            <kie:width>1169</kie:width>
+            <kie:width>1288</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_44D3BE9D-164C-48CC-9A63-CE3509DD2ADF">
             <kie:width>1015</kie:width>
@@ -3869,18 +3907,40 @@ category:  if candidate != null then candidate.category else []
             <kie:width>1015</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_627F2EE7-7A48-4931-A848-C0D7744B60EE">
-            <kie:width>716</kie:width>
+            <kie:width>50</kie:width>
+            <kie:width>120</kie:width>
+            <kie:width>582</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_9D16B5A4-306F-4B7E-96CA-8896A28F8F36">
+            <kie:width>582</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_903AA24B-FBB1-4489-8BE7-6F298CC53EC9">
+            <kie:width>582</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_9C6AA303-7044-479D-BAD9-6A49B7754054">
+            <kie:width>582</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_46F4E339-252A-427A-9D80-2DEA89AD4B39">
             <kie:width>50</kie:width>
-            <kie:width>716</kie:width>
+            <kie:width>772</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_33029832-D746-4DA5-874D-3C80C8C8C9E9">
-            <kie:width>1004</kie:width>
+            <kie:width>50</kie:width>
+            <kie:width>120</kie:width>
+            <kie:width>777</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_3E2A5F27-6AC3-4048-B43D-2E03723B2C91">
+            <kie:width>777</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_FE1235B4-C1F3-40A4-84F1-54E18425A3EB">
+            <kie:width>777</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_3C83E782-1CD7-4B7E-A34A-94F566B164A0">
+            <kie:width>777</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_12C255FC-0D74-4D67-88AB-4DF4BABFE113">
             <kie:width>50</kie:width>
-            <kie:width>1004</kie:width>
+            <kie:width>967</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_95806454-9F6E-427E-B92C-0A996840ACA8">
             <kie:width>888</kie:width>
@@ -3892,37 +3952,40 @@ category:  if candidate != null then candidate.category else []
           <kie:ComponentWidths dmnElementRef="_18E91CEC-F268-4F6E-9B29-20B7FD694C93">
             <kie:width>50</kie:width>
             <kie:width>214</kie:width>
-            <kie:width>880</kie:width>
+            <kie:width>640</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_260A7720-728E-44BA-8D2A-86BC23DA49C2">
-            <kie:width>880</kie:width>
+            <kie:width>640</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_8F217931-46E1-415B-8AA3-B3980E1A8359">
-            <kie:width>880</kie:width>
+            <kie:width>640</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_260FAA54-4345-4BD7-A36E-B5A7009B369B">
-            <kie:width>880</kie:width>
+            <kie:width>640</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_6AC9D5FE-9095-49E9-A29A-CEF5564DCA0B">
             <kie:width>50</kie:width>
             <kie:width>120</kie:width>
-            <kie:width>690</kie:width>
+            <kie:width>450</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_FB904A80-758F-4FB8-A411-256DDFB5CB49">
-            <kie:width>690</kie:width>
+            <kie:width>450</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_10AA63D6-40B7-4DAF-A4C1-031ABA8123CD">
-            <kie:width>690</kie:width>
+            <kie:width>450</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_586BE853-5A10-4A91-894D-0D6CA842882E">
-            <kie:width>690</kie:width>
+            <kie:width>450</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_967DAE1F-D6CC-4B73-9751-0578AA419559">
-            <kie:width>690</kie:width>
+            <kie:width>450</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_3575D7A3-8D48-4DBF-9AB1-021FE3FF3FFE">
+            <kie:width>450</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_EDBAFDBE-DE72-48A4-96CD-365BD5DE55E1">
             <kie:width>50</kie:width>
-            <kie:width>1164</kie:width>
+            <kie:width>924</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_C727E5D1-2B62-4E6A-95C1-64725A77D2F4">
             <kie:width>823</kie:width>
@@ -3938,6 +4001,46 @@ category:  if candidate != null then candidate.category else []
             <kie:width>50</kie:width>
             <kie:width>685</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_A17E7625-8A10-4FA9-8CA3-FE87E626D6D2">
+            <kie:width>813</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_40A8F242-D3A1-417F-AED9-F68A169D818A">
+            <kie:width>50</kie:width>
+            <kie:width>813</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1587799C-3054-4CF9-A295-460B60E551A2">
+            <kie:width>50</kie:width>
+            <kie:width>120</kie:width>
+            <kie:width>701</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1EB03F0D-573B-4F9A-8708-01B0F0DE1355">
+            <kie:width>701</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_B66ACC1D-1E0A-40BC-9785-99BF3B659777">
+            <kie:width>701</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_D0F3A920-E8A2-4899-99EB-AC0E40CE1BE0">
+            <kie:width>50</kie:width>
+            <kie:width>120</kie:width>
+            <kie:width>511</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_9CCD9927-BEAF-4535-B869-F40069C44A65">
+            <kie:width>511</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_5009653F-5F13-407C-90FA-79F96C673038">
+            <kie:width>511</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_EDD9B871-8AD1-4E57-886E-921C2204EC62">
+            <kie:width>50</kie:width>
+            <kie:width>891</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_965A9397-A1D0-4A9C-94D1-F2048DCA2D71">
+            <kie:width>601</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_9505715E-7D7A-4A9C-BD44-4A64B9965D42">
+            <kie:width>50</kie:width>
+            <kie:width>601</kie:width>
+          </kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="dmnshape-drg-_583DD903-9259-4ED8-AF6D-4A2B24E899D1" dmnElementRef="_583DD903-9259-4ED8-AF6D-4A2B24E899D1" isCollapsed="false">
@@ -3946,7 +4049,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="133.426585" y="126" width="210.573415" height="50"/>
+        <dc:Bounds x="149.426585" y="185" width="210.573415" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_1C191D81-E58F-4B93-924B-CD7FAB1B2DB1" dmnElementRef="_1C191D81-E58F-4B93-924B-CD7FAB1B2DB1" isCollapsed="false">
@@ -3955,7 +4058,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="403.1340308411215" y="877.2206000000001" width="100" height="50"/>
+        <dc:Bounds x="279.5981308411215" y="802" width="100" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_42C4AD5D-0C43-4958-98E8-6829FC37AD0A" dmnElementRef="_42C4AD5D-0C43-4958-98E8-6829FC37AD0A" isCollapsed="false">
@@ -3964,7 +4067,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="263.713470093458" y="877.2206000000001" width="130" height="50"/>
+        <dc:Bounds x="136.17757009345794" y="801.3421052631579" width="130" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_D7211B13-88CD-4117-BFCC-4C3BD923504B" dmnElementRef="_D7211B13-88CD-4117-BFCC-4C3BD923504B" isCollapsed="false">
@@ -3982,7 +4085,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="772.1316943925234" y="789.2206000000001" width="129" height="50"/>
+        <dc:Bounds x="764.1915887850467" y="795" width="129" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_FA1853E1-AAC7-4DE8-9223-115A47B2E471" dmnElementRef="_FA1853E1-AAC7-4DE8-9223-115A47B2E471" isCollapsed="false">
@@ -3991,7 +4094,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="926.8653392523364" y="717.483757894737" width="167" height="56"/>
+        <dc:Bounds x="928.3294392523364" y="715.2631578947369" width="167" height="56"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_46C04B2F-63AF-42F9-BC7A-13989FC8E925" dmnElementRef="_46C04B2F-63AF-42F9-BC7A-13989FC8E925" isCollapsed="false">
@@ -4000,7 +4103,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="1141.5359" y="714.562705263158" width="172" height="50"/>
+        <dc:Bounds x="1146" y="718.3421052631579" width="172" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_463754E3-6FF7-4CFF-BFE4-80F0F6724DFD" dmnElementRef="_463754E3-6FF7-4CFF-BFE4-80F0F6724DFD" isCollapsed="false">
@@ -4012,22 +4115,13 @@ category:  if candidate != null then candidate.category else []
         <dc:Bounds x="283.30000000000007" y="651" width="203.39999999999992" height="57.69999999999999"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
-      <dmndi:DMNShape id="dmnshape-drg-_95379092-93E2-43C2-A8EB-AB644004699F" dmnElementRef="_95379092-93E2-43C2-A8EB-AB644004699F" isCollapsed="false">
-        <dmndi:DMNStyle fontFamily="Monospace">
-          <dmndi:FillColor red="20" green="180" blue="170"/>
-          <dmndi:StrokeColor red="255" green="255" blue="255"/>
-          <dmndi:FontColor red="0" green="0" blue="0"/>
-        </dmndi:DMNStyle>
-        <dc:Bounds x="635.1191600700935" y="877.2206000000001" width="111.27357" height="52.415764999999965"/>
-        <dmndi:DMNLabel/>
-      </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_B8E2B699-1DA3-4243-969D-7F4639A7B6ED" dmnElementRef="_B8E2B699-1DA3-4243-969D-7F4639A7B6ED" isCollapsed="false">
         <dmndi:DMNStyle fontFamily="Monospace">
           <dmndi:FillColor red="20" green="180" blue="170"/>
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="877.5359" y="876.2206000000001" width="100" height="50"/>
+        <dc:Bounds x="621.2990654205607" y="802.3421052631579" width="100" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_BF69BB9E-BFD6-4F71-A36B-F778F493A83C" dmnElementRef="_BF69BB9E-BFD6-4F71-A36B-F778F493A83C" isCollapsed="false">
@@ -4036,7 +4130,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="760.8349654205607" y="880.2206000000001" width="100" height="50"/>
+        <dc:Bounds x="507" y="802" width="100" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_9801D117-BC66-459D-AE32-F1624DCCC644" dmnElementRef="_9801D117-BC66-459D-AE32-F1624DCCC644" isCollapsed="false">
@@ -4045,7 +4139,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="601.4696261682243" y="154.68421052631578" width="147" height="50"/>
+        <dc:Bounds x="741.4696261682243" y="133.68421052631578" width="147" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_F21992FE-331B-48D1-A3DF-4E1D0CE1D64D" dmnElementRef="_F21992FE-331B-48D1-A3DF-4E1D0CE1D64D" isCollapsed="false">
@@ -4054,7 +4148,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="588.7133282294161" y="16.684210526315795" width="166.24283648760326" height="50"/>
+        <dc:Bounds x="734.7133282294161" y="6.684210526315795" width="166.24283648760326" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_1039E88B-B9B1-4326-A0FB-1E95DD8C2B1B" dmnElementRef="_1039E88B-B9B1-4326-A0FB-1E95DD8C2B1B" isCollapsed="false">
@@ -4063,7 +4157,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="589.2092732359813" y="82.68421052631578" width="214.573415" height="50"/>
+        <dc:Bounds x="741.2092732359813" y="65.6842105263158" width="214.573415" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_4F46F886-C6FC-4758-82AA-770DD24BACA9" dmnElementRef="_4F46F886-C6FC-4758-82AA-770DD24BACA9" isCollapsed="false">
@@ -4072,7 +4166,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="767.5359" y="717.9969157894739" width="116" height="55"/>
+        <dc:Bounds x="767.373831775701" y="720" width="116" height="55"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_2E757F8B-F6E4-4E52-88A7-37F22021A252" dmnElementRef="_2E757F8B-F6E4-4E52-88A7-37F22021A252" isCollapsed="false">
@@ -4081,7 +4175,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="509.83496542056076" y="877.2206000000001" width="100" height="50"/>
+        <dc:Bounds x="389.5981308411215" y="799.3421052631579" width="100" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_B9BE2BFB-DCEC-44A8-9DAD-2585355611EC" dmnElementRef="_B9BE2BFB-DCEC-44A8-9DAD-2585355611EC" isCollapsed="false">
@@ -4099,7 +4193,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="139.88169439252337" y="877.2206000000001" width="118" height="50"/>
+        <dc:Bounds x="102.34579439252337" y="738" width="118" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_8CF19775-759B-47B9-90F1-C1922FE27AA2" dmnElementRef="_8CF19775-759B-47B9-90F1-C1922FE27AA2" isCollapsed="false">
@@ -4108,7 +4202,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="535.8349654205607" y="512.9048105263159" width="100" height="50"/>
+        <dc:Bounds x="547.2990654205607" y="441" width="100" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_09F6E477-55EC-4DC6-9950-488BF4E670A9" dmnElementRef="_09F6E477-55EC-4DC6-9950-488BF4E670A9" isCollapsed="false">
@@ -4117,7 +4211,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="762.7672084112149" y="651" width="181" height="50"/>
+        <dc:Bounds x="756" y="656" width="181" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_E7D76438-F63C-43B4-B6D3-305FA404EFEA" dmnElementRef="_E7D76438-F63C-43B4-B6D3-305FA404EFEA" isCollapsed="false">
@@ -4126,7 +4220,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="964.5359" y="649.2206000000001" width="207" height="50"/>
+        <dc:Bounds x="980" y="654" width="207" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_8F5BFB3A-4F04-46BE-BA7F-327E19253836" dmnElementRef="_8F5BFB3A-4F04-46BE-BA7F-327E19253836" isCollapsed="false">
@@ -4135,7 +4229,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="969" y="403" width="139" height="50"/>
+        <dc:Bounds x="938" y="311.6842105263158" width="139" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_92AADAF8-1DCF-4AE7-ACF2-811CF502B8FA" dmnElementRef="_92AADAF8-1DCF-4AE7-ACF2-811CF502B8FA" isCollapsed="false">
@@ -4144,7 +4238,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="507" y="368" width="154" height="50"/>
+        <dc:Bounds x="518" y="295" width="154" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_07BB5340-234E-4567-A018-A48E1979A392" dmnElementRef="_07BB5340-234E-4567-A018-A48E1979A392" isCollapsed="false">
@@ -4153,7 +4247,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="777" y="246.68421052631578" width="147" height="50"/>
+        <dc:Bounds x="761.9392523364486" y="246.3421052631579" width="147" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_A05DB536-E0F5-4A5B-86E0-6AD841B79DCA" dmnElementRef="_A05DB536-E0F5-4A5B-86E0-6AD841B79DCA" isCollapsed="false">
@@ -4162,16 +4256,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="779.4556074766356" y="307.6842105263158" width="149" height="50"/>
-        <dmndi:DMNLabel/>
-      </dmndi:DMNShape>
-      <dmndi:DMNShape id="dmnshape-drg-_0F89B39F-E2E5-4214-A031-E62448E556F4" dmnElementRef="_0F89B39F-E2E5-4214-A031-E62448E556F4" isCollapsed="false">
-        <dmndi:DMNStyle fontFamily="monospace">
-          <dmndi:FillColor red="255" green="240" blue="140"/>
-          <dmndi:StrokeColor red="255" green="255" blue="255"/>
-          <dmndi:FontColor red="0" green="0" blue="0"/>
-        </dmndi:DMNStyle>
-        <dc:Bounds x="735.9485981308411" y="546" width="150" height="50"/>
+        <dc:Bounds x="758.4556074766356" y="309" width="149" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_E8F5D02C-54EC-4F56-B202-341192B537A3" dmnElementRef="_E8F5D02C-54EC-4F56-B202-341192B537A3" isCollapsed="false">
@@ -4180,7 +4265,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="910" y="541.3421052631579" width="191" height="50"/>
+        <dc:Bounds x="773" y="478.3421052631579" width="191" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_AFFFE7CA-2BFC-4712-9FAB-1209450E864F" dmnElementRef="_AFFFE7CA-2BFC-4712-9FAB-1209450E864F" isCollapsed="false">
@@ -4189,7 +4274,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="1209" y="314.3421052631579" width="179.4000000000001" height="50"/>
+        <dc:Bounds x="1091.085046728972" y="156.3421052631579" width="179.4000000000001" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_78391859-CE88-4340-8A3C-8EC586B3C8A9" dmnElementRef="_78391859-CE88-4340-8A3C-8EC586B3C8A9" isCollapsed="false">
@@ -4198,7 +4283,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="1217" y="376.6842105263158" width="172.0999999999999" height="50"/>
+        <dc:Bounds x="1090" y="246.34210526315792" width="253.0999999999999" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_CBE9B1C2-B6C1-429C-B24C-E8A479014D63" dmnElementRef="_CBE9B1C2-B6C1-429C-B24C-E8A479014D63" isCollapsed="false">
@@ -4207,7 +4292,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="1208.5359" y="444.3421052631579" width="181.29999999999995" height="50"/>
+        <dc:Bounds x="1131" y="324.6842105263158" width="181.29999999999995" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_EB15D416-0C28-42AC-A40E-5E1FF8E66E74" dmnElementRef="_EB15D416-0C28-42AC-A40E-5E1FF8E66E74" isCollapsed="false">
@@ -4216,7 +4301,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="777" y="369.6842105263158" width="154.57100000000003" height="50"/>
+        <dc:Bounds x="776.631058411215" y="395" width="154.57100000000003" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_AB1CACEE-9F8A-43B4-A8EC-2525300731B8" dmnElementRef="_AB1CACEE-9F8A-43B4-A8EC-2525300731B8" isCollapsed="false">
@@ -4225,7 +4310,7 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="973.4773060747664" y="326.6842105263158" width="125.28899999999999" height="50"/>
+        <dc:Bounds x="1287" y="402.3421052631579" width="125.28899999999999" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_EEF2A37E-7C24-4D4D-9FE4-D5A0231369CD" dmnElementRef="_EEF2A37E-7C24-4D4D-9FE4-D5A0231369CD" isCollapsed="false">
@@ -4234,72 +4319,107 @@ category:  if candidate != null then candidate.category else []
           <dmndi:StrokeColor red="255" green="255" blue="255"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="1156" y="542.3421052631579" width="100" height="50"/>
+        <dc:Bounds x="1006" y="480.3421052631579" width="100" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_4F042B7A-CAC6-4A03-B10B-06B69FF76E1F" dmnElementRef="_4F042B7A-CAC6-4A03-B10B-06B69FF76E1F" isCollapsed="false">
+        <dmndi:DMNStyle fontFamily="monospace">
+          <dmndi:FillColor red="255" green="240" blue="140"/>
+          <dmndi:StrokeColor red="255" green="255" blue="255"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="1087" y="86.6842105263158" width="187" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_68C43F31-6EC6-418E-BB42-B713A41E45B9" dmnElementRef="_68C43F31-6EC6-418E-BB42-B713A41E45B9" isCollapsed="false">
+        <dmndi:DMNStyle fontFamily="monospace">
+          <dmndi:FillColor red="255" green="240" blue="140"/>
+          <dmndi:StrokeColor red="255" green="255" blue="255"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="693" y="568.6842105263158" width="253" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_B2287314-6B3F-4BDD-822F-A08D136E8135" dmnElementRef="_B2287314-6B3F-4BDD-822F-A08D136E8135" isCollapsed="false">
+        <dmndi:DMNStyle fontFamily="monospace">
+          <dmndi:FillColor red="255" green="240" blue="140"/>
+          <dmndi:StrokeColor red="255" green="255" blue="255"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="1428" y="246.34210526315792" width="100" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_6A053EFB-F239-402C-ABD2-2A6051B5C467-AUTO-TARGET" dmnElementRef="_6A053EFB-F239-402C-ABD2-2A6051B5C467">
         <di:waypoint x="385" y="679.85"/>
-        <di:waypoint x="238.71329250000002" y="176"/>
+        <di:waypoint x="254.71329250000002" y="235"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_FE44C52F-3928-4F83-B9C9-78B0F909E7E4-AUTO-TARGET" dmnElementRef="_FE44C52F-3928-4F83-B9C9-78B0F909E7E4">
-        <di:waypoint x="584" y="393"/>
-        <di:waypoint x="238.7132925" y="176"/>
+        <di:waypoint x="595" y="320"/>
+        <di:waypoint x="254.7132925" y="235"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_1BF06EE5-0CD9-41E0-979A-B7AE12E9C133-AUTO-TARGET" dmnElementRef="_1BF06EE5-0CD9-41E0-979A-B7AE12E9C133">
         <di:waypoint x="385" y="679.85"/>
         <di:waypoint x="493" y="238"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_E8BE9F28-626B-432B-A030-B25CF751B91D-AUTO-TARGET" dmnElementRef="_E8BE9F28-626B-432B-A030-B25CF751B91D">
-        <di:waypoint x="584" y="393"/>
+        <di:waypoint x="595" y="320"/>
         <di:waypoint x="493" y="238"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_F4BD39DA-B899-49F7-8E96-F249CBA3D260-AUTO-TARGET" dmnElementRef="_F4BD39DA-B899-49F7-8E96-F249CBA3D260">
-        <di:waypoint x="1227.5359" y="739.562705263158"/>
-        <di:waypoint x="1010.3653392523364" y="773.483757894737"/>
+        <di:waypoint x="1232" y="743.3421052631579"/>
+        <di:waypoint x="1011.8294392523364" y="771.2631578947369"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_3FA00F11-C504-4C7B-B7C1-F5D34D086C6D-AUTO-TARGET" dmnElementRef="_3FA00F11-C504-4C7B-B7C1-F5D34D086C6D">
-        <di:waypoint x="453.1340308411215" y="902.2206000000001"/>
-        <di:waypoint x="385" y="708.7"/>
-      </dmndi:DMNEdge>
-      <dmndi:DMNEdge id="dmnedge-drg-_E3F74683-F1D1-4123-9106-EEFBFE83409D-AUTO-TARGET" dmnElementRef="_E3F74683-F1D1-4123-9106-EEFBFE83409D">
-        <di:waypoint x="690.7559450700935" y="903.4284825000001"/>
+        <di:waypoint x="329.5981308411215" y="827"/>
         <di:waypoint x="385" y="708.7"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_0CA69E87-BE76-4563-B866-C5F68C680CFF-AUTO-TARGET" dmnElementRef="_0CA69E87-BE76-4563-B866-C5F68C680CFF">
-        <di:waypoint x="559.8349654205608" y="902.2206000000001"/>
+        <di:waypoint x="439.5981308411215" y="824.3421052631579"/>
         <di:waypoint x="385" y="708.7"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_3A86C54E-6C00-4049-9675-4BEE10F7367E-AUTO-TARGET" dmnElementRef="_3A86C54E-6C00-4049-9675-4BEE10F7367E">
-        <di:waypoint x="328.713470093458" y="902.2206000000001"/>
+        <di:waypoint x="201.17757009345792" y="826.3421052631579"/>
         <di:waypoint x="486.7" y="679.8499999999999"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_BC9777D4-CF59-4A20-8539-153375C004E3-AUTO-TARGET" dmnElementRef="_BC9777D4-CF59-4A20-8539-153375C004E3">
-        <di:waypoint x="198.8816943925234" y="902.2206000000001"/>
+        <di:waypoint x="161.34579439252337" y="763"/>
         <di:waypoint x="385.00000000000006" y="708.7"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_D99B7373-07FC-4E66-AD32-D9A4D1B205B2-AUTO-TARGET" dmnElementRef="_D99B7373-07FC-4E66-AD32-D9A4D1B205B2">
-        <di:waypoint x="810.8349654205607" y="905.2206000000001"/>
+        <di:waypoint x="557" y="827"/>
         <di:waypoint x="385.00000000000006" y="708.7"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_B9CFC5D7-AC63-4216-8FDD-7D78ABEA92E4-AUTO-TARGET" dmnElementRef="_B9CFC5D7-AC63-4216-8FDD-7D78ABEA92E4">
-        <di:waypoint x="927.5359" y="901.2206000000001"/>
+        <di:waypoint x="671.2990654205607" y="827.3421052631579"/>
         <di:waypoint x="385.00000000000006" y="708.6999999999999"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_8448AAAF-0662-4A3D-B48E-A581B51B6F88-AUTO-TARGET" dmnElementRef="_8448AAAF-0662-4A3D-B48E-A581B51B6F88">
-        <di:waypoint x="836.6316943925234" y="814.2206000000001"/>
+        <di:waypoint x="828.6915887850467" y="820"/>
         <di:waypoint x="385" y="708.7"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_CCBCF907-5C5E-4616-96A5-421337828045-AUTO-TARGET" dmnElementRef="_CCBCF907-5C5E-4616-96A5-421337828045">
-        <di:waypoint x="825.5359" y="745.4969157894739"/>
+        <di:waypoint x="825.373831775701" y="747.5"/>
         <di:waypoint x="385" y="708.7"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_633012B4-D20B-4DDF-B945-1C9E9E2DCC11-AUTO-TARGET" dmnElementRef="_633012B4-D20B-4DDF-B945-1C9E9E2DCC11">
-        <di:waypoint x="853.2672084112149" y="676"/>
+        <di:waypoint x="846.5" y="681"/>
         <di:waypoint x="283.30000000000007" y="679.85"/>
       </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_6B3D0BE3-2E17-450E-9947-9082B6E34822-AUTO-TARGET" dmnElementRef="_6B3D0BE3-2E17-450E-9947-9082B6E34822">
+        <di:waypoint x="1180.785046728972" y="181.34210526315792"/>
+        <di:waypoint x="814.9696261682243" y="183.68421052631578"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_8C5E7392-706C-42F0-AD81-39B0E9FB1BF2-AUTO-TARGET" dmnElementRef="_8C5E7392-706C-42F0-AD81-39B0E9FB1BF2">
+        <di:waypoint x="1180.5" y="111.6842105263158"/>
+        <di:waypoint x="888.4696261682243" y="158.68421052631578"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_48ED91CA-17AB-4C2D-BF70-893FEEACA770-AUTO-SOURCE-AUTO-TARGET" dmnElementRef="_48ED91CA-17AB-4C2D-BF70-893FEEACA770">
+        <di:waypoint x="1216.55" y="246.34210526315792"/>
+        <di:waypoint x="814.9696261682243" y="183.68421052631578"/>
+      </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_07FF8F52-CC99-4F44-94E6-202C75E1FB4D-AUTO-SOURCE" dmnElementRef="_07FF8F52-CC99-4F44-94E6-202C75E1FB4D">
-        <di:waypoint x="926.8653392523364" y="745.483757894737"/>
-        <di:waypoint x="825.5359" y="745.4969157894739"/>
+        <di:waypoint x="928.3294392523364" y="743.2631578947369"/>
+        <di:waypoint x="825.373831775701" y="747.5"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_5575CD28-26DA-4934-BEF4-A0A5D10DE4B3-AUTO-SOURCE" dmnElementRef="_5575CD28-26DA-4934-BEF4-A0A5D10DE4B3">
         <di:waypoint x="385" y="651"/>
@@ -4310,76 +4430,84 @@ category:  if candidate != null then candidate.category else []
         <di:waypoint x="397.07419" y="62"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_61D5580F-8296-4F9B-A81E-727731861C10-AUTO-TARGET" dmnElementRef="_61D5580F-8296-4F9B-A81E-727731861C10">
-        <di:waypoint x="674.9696261682243" y="179.68421052631578"/>
+        <di:waypoint x="814.9696261682243" y="158.68421052631578"/>
         <di:waypoint x="297.14838000000003" y="37"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_EDF14B45-0588-4772-92AB-6404E0F0CC2C-AUTO-TARGET" dmnElementRef="_EDF14B45-0588-4772-92AB-6404E0F0CC2C">
-        <di:waypoint x="671.8347464732178" y="41.684210526315795"/>
+        <di:waypoint x="817.8347464732178" y="31.684210526315795"/>
         <di:waypoint x="397.07419" y="12"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_1BBCF990-1DBF-4C28-9AC5-C78BEA98F277-AUTO-TARGET" dmnElementRef="_1BBCF990-1DBF-4C28-9AC5-C78BEA98F277">
-        <di:waypoint x="696.4959807359813" y="107.68421052631578"/>
+        <di:waypoint x="848.4959807359813" y="90.6842105263158"/>
         <di:waypoint x="397.07419" y="62"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_9FB87291-FE19-49A7-B2BE-B52896117AEB-AUTO-TARGET" dmnElementRef="_9FB87291-FE19-49A7-B2BE-B52896117AEB">
-        <di:waypoint x="1068.0358999999999" y="674.2206000000001"/>
-        <di:waypoint x="853.2672084112149" y="651"/>
-      </dmndi:DMNEdge>
-      <dmndi:DMNEdge id="dmnedge-drg-_0C0DB094-7321-4D66-9B86-430AA5F7448A" dmnElementRef="_0C0DB094-7321-4D66-9B86-430AA5F7448A">
-        <di:waypoint x="1298.7" y="339.3421052631579"/>
-        <di:waypoint x="1038.5" y="428"/>
-      </dmndi:DMNEdge>
-      <dmndi:DMNEdge id="dmnedge-drg-_D1B3AB09-FEB3-4441-B5D0-A740ADE4D652-AUTO-TARGET" dmnElementRef="_D1B3AB09-FEB3-4441-B5D0-A740ADE4D652">
-        <di:waypoint x="1303.05" y="401.6842105263158"/>
-        <di:waypoint x="1038.5" y="453"/>
-      </dmndi:DMNEdge>
-      <dmndi:DMNEdge id="dmnedge-drg-_FC6AEBB5-5415-48A1-BFDD-CBC946738C5A-AUTO-TARGET" dmnElementRef="_FC6AEBB5-5415-48A1-BFDD-CBC946738C5A">
-        <di:waypoint x="1303.05" y="401.6842105263158"/>
-        <di:waypoint x="1038.5" y="453"/>
+        <di:waypoint x="1083.5" y="679"/>
+        <di:waypoint x="846.5" y="656"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_DA8DA827-CAD7-417E-ADE6-2162FB137332-AUTO-TARGET" dmnElementRef="_DA8DA827-CAD7-417E-ADE6-2162FB137332">
-        <di:waypoint x="1299.1859" y="469.3421052631579"/>
-        <di:waypoint x="1038.5" y="453"/>
+        <di:waypoint x="1221.65" y="349.6842105263158"/>
+        <di:waypoint x="1007.5" y="361.6842105263158"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_77B076B7-AB74-491E-8CDC-0603E38DAF08" dmnElementRef="_77B076B7-AB74-491E-8CDC-0603E38DAF08">
+        <di:waypoint x="1216.55" y="271.3421052631579"/>
+        <di:waypoint x="1007.5" y="336.6842105263158"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_11F5EC1E-F613-4D4B-8D40-3B25950EE5D2" dmnElementRef="_11F5EC1E-F613-4D4B-8D40-3B25950EE5D2">
+        <di:waypoint x="1180.785046728972" y="181.34210526315792"/>
+        <di:waypoint x="1007.5" y="311.6842105263158"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_2865CC0D-AEF3-47C8-A831-963D4F38EBEA-AUTO-TARGET" dmnElementRef="_2865CC0D-AEF3-47C8-A831-963D4F38EBEA">
         <di:waypoint x="385" y="679.85"/>
-        <di:waypoint x="584" y="418"/>
+        <di:waypoint x="595" y="345"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_C49DDFD1-1C74-4DB2-9AE1-F9254976B21C-AUTO-TARGET" dmnElementRef="_C49DDFD1-1C74-4DB2-9AE1-F9254976B21C">
-        <di:waypoint x="585.8349654205607" y="537.9048105263159"/>
-        <di:waypoint x="661" y="393"/>
+        <di:waypoint x="597.2990654205607" y="466"/>
+        <di:waypoint x="672" y="320"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_B16D9553-777C-42AF-BFF0-E7F20E5BF919-AUTO-TARGET" dmnElementRef="_B16D9553-777C-42AF-BFF0-E7F20E5BF919">
-        <di:waypoint x="1005.5" y="566.3421052631579"/>
-        <di:waypoint x="661" y="393"/>
+        <di:waypoint x="868.5" y="503.3421052631579"/>
+        <di:waypoint x="672" y="320"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_0B61290C-6695-466A-8358-8521A4B14FBC-AUTO-TARGET" dmnElementRef="_0B61290C-6695-466A-8358-8521A4B14FBC">
-        <di:waypoint x="850.5" y="271.6842105263158"/>
-        <di:waypoint x="584" y="368"/>
+        <di:waypoint x="835.4392523364486" y="271.3421052631579"/>
+        <di:waypoint x="595" y="295"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_5B1E507B-CC77-4EB0-A3F3-5A2275CFCA71-AUTO-TARGET" dmnElementRef="_5B1E507B-CC77-4EB0-A3F3-5A2275CFCA71">
-        <di:waypoint x="854.2855" y="394.6842105263158"/>
-        <di:waypoint x="661" y="393"/>
+        <di:waypoint x="853.916558411215" y="420"/>
+        <di:waypoint x="672" y="320"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_93723593-F30E-4E4A-AD5A-BC669B1A90F6-AUTO-TARGET" dmnElementRef="_93723593-F30E-4E4A-AD5A-BC669B1A90F6">
-        <di:waypoint x="853.9556074766356" y="332.6842105263158"/>
-        <di:waypoint x="661" y="393"/>
+        <di:waypoint x="832.9556074766356" y="334"/>
+        <di:waypoint x="672" y="320"/>
       </dmndi:DMNEdge>
-      <dmndi:DMNEdge id="dmnedge-drg-_48E75E12-2848-4503-801D-C02258FC1BEA-AUTO-TARGET" dmnElementRef="_48E75E12-2848-4503-801D-C02258FC1BEA">
-        <di:waypoint x="810.9485981308411" y="571"/>
-        <di:waypoint x="584" y="418"/>
+      <dmndi:DMNEdge id="dmnedge-drg-_1C45C916-B88A-4717-9271-52742ED88BEE-AUTO-TARGET" dmnElementRef="_1C45C916-B88A-4717-9271-52742ED88BEE">
+        <di:waypoint x="819.5" y="593.6842105263158"/>
+        <di:waypoint x="595" y="345"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_73CAE792-4A47-4C11-A41A-77B237DEF800-AUTO-TARGET" dmnElementRef="_73CAE792-4A47-4C11-A41A-77B237DEF800">
-        <di:waypoint x="1206" y="567.3421052631579"/>
-        <di:waypoint x="1101" y="566.3421052631579"/>
+        <di:waypoint x="1056" y="505.3421052631579"/>
+        <di:waypoint x="964.0000000000001" y="503.3421052631579"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_664708AE-0F3A-4E84-9E51-EA058C1605C9-AUTO-TARGET" dmnElementRef="_664708AE-0F3A-4E84-9E51-EA058C1605C9">
+        <di:waypoint x="1478" y="271.3421052631579"/>
+        <di:waypoint x="1180.785046728972" y="206.34210526315792"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_1D66AF17-4928-4E27-9F93-87DB939B1318-AUTO-TARGET" dmnElementRef="_1D66AF17-4928-4E27-9F93-87DB939B1318">
+        <di:waypoint x="1478" y="271.3421052631579"/>
+        <di:waypoint x="1343.1" y="271.3421052631579"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_326D8788-F0DF-47FC-90AA-AB2E852A5212-AUTO-TARGET" dmnElementRef="_326D8788-F0DF-47FC-90AA-AB2E852A5212">
-        <di:waypoint x="1038.5" y="428"/>
-        <di:waypoint x="931.571" y="394.6842105263158"/>
+        <di:waypoint x="1007.5" y="336.6842105263158"/>
+        <di:waypoint x="931.2020584112151" y="420"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_CFB704AA-2657-43DB-AD04-4458D08025FA-AUTO-TARGET" dmnElementRef="_CFB704AA-2657-43DB-AD04-4458D08025FA">
-        <di:waypoint x="1036.1218060747665" y="351.6842105263158"/>
-        <di:waypoint x="854.2855" y="369.6842105263158"/>
+        <di:waypoint x="1349.6444999999999" y="427.3421052631579"/>
+        <di:waypoint x="853.916558411215" y="395"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_5ABDCA0A-3110-4D38-81E5-0095443A333C-AUTO-TARGET" dmnElementRef="_5ABDCA0A-3110-4D38-81E5-0095443A333C">
+        <di:waypoint x="1478" y="271.3421052631579"/>
+        <di:waypoint x="1349.6444999999999" y="402.3421052631579"/>
       </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
   </dmndi:DMNDI>
